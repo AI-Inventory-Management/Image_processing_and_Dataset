@@ -147,7 +147,7 @@ class cornerDetector():
             }
         df = pd.DataFrame(data)
         try:
-            existing_df = pd.read_csv('some_file.csv')
+            existing_df = pd.read_csv('data.csv')
             df = pd.concat([existing_df, df])
             df.to_csv(os.path.join(self.dataset_path,'data.csv'), index=False)
         except FileNotFoundError:

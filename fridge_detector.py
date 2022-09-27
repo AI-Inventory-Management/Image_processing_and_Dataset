@@ -17,7 +17,7 @@ class cornerDetector():
         self.dataset_path = "./corner_detector_dataset/"
         self.dataset_images_path = os.path.join(self.dataset_path, "images/")
         self.raw_images_path = "./test1_images/"
-        self.image_id_prefix = "josea"
+        self.image_id_prefix = "alex"
         #print("images path is: {p}".format(p=self.dataset_images_path))
 
     def generate_haar_like_kernels(self):
@@ -49,13 +49,13 @@ class cornerDetector():
         kernel_h[:, :kernel_size_half] = ones_kernel[:, :kernel_size_half]
 
         kernels = (kernel_a, kernel_b, kernel_c, kernel_d, kernel_e, kernel_f, kernel_g, kernel_h)
-        
+
         """for i in range(len(kernels)):
             cv.imshow("kernel {index}".format(index= i), kernels[i])
             cv.waitKey(0)"""
-        
+
         return kernels
-        
+
     def compute_feature(self, haar_kernel, roi):
         resized_roi = cv.resize(roi, self.haar_like_kernels_size, interpolation = cv.INTER_AREA)
         conv = haar_kernel*resized_roi
@@ -106,7 +106,7 @@ class cornerDetector():
                     output_data.append(output_val)
                 else:
                     print("ERROR data couldn´t be saved, key value is: {key}".format(key= pressed_key))
-    
+
     def generate_dataset(self):
         dataset_images_names = []
         dataset_features_data = []
@@ -126,15 +126,15 @@ class cornerDetector():
             print(images_to_check)
         elif self.image_id_prefix == 'alex':
             images_to_check = images_dirs[3*one_third_images-one_third_images:]
-        
+
         for image_path in images_to_check:
             image = cv.imread(image_path)
             new_image_size = (int(image.shape[1]*0.3), int(image.shape[0]*0.3) )
             image = cv.resize(image, new_image_size, interpolation = cv.INTER_AREA)
-            self.sweep_image_to_build_dataset(image, dataset_images_names, dataset_features_data, dataset_output_values_data) 
+            self.sweep_image_to_build_dataset(image, dataset_images_names, dataset_features_data, dataset_output_values_data)
         features = np.array(dataset_features_data)
         data = {
-            "image_dir": dataset_images_names, 
+            "image_dir": dataset_images_names,
             "conv_a": features[:, 0].tolist(),
             "conv_b": features[:, 1].tolist(),
             "conv_c": features[:, 2].tolist(),

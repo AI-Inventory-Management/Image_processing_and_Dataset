@@ -17,7 +17,7 @@ class cornerDetector():
         self.dataset_path = "./corner_detector_dataset/"
         self.dataset_images_path = os.path.join(self.dataset_path, "images/")
         self.raw_images_path = "./test1_images/"
-        self.image_id_prefix = "erandi"
+        self.image_id_prefix = "josea"
         #print("images path is: {p}".format(p=self.dataset_images_path))
 
     def generate_haar_like_kernels(self):
@@ -121,7 +121,7 @@ class cornerDetector():
         one_third_images = int(number_of_images/3)
         if self.image_id_prefix == 'josea':
             images_to_check = images_dirs[1*one_third_images-one_third_images:1*one_third_images]
-        elif self.image_id_prefix == 'erandi':
+        elif self.image_id_prefix == 'javier':
             images_to_check = images_dirs[2*one_third_images-one_third_images:2*one_third_images]
             print(images_to_check)
         elif self.image_id_prefix == 'alex':
@@ -146,7 +146,12 @@ class cornerDetector():
             "is_fridge_corner": dataset_output_values_data,
             }
         df = pd.DataFrame(data)
-        df.to_csv(os.path.join(self.dataset_path,'data.csv'), index=False)
+        try:
+            existing_df = pd.read_csv('some_file.csv')
+            df = pd.concat([existing_df, df])
+            df.to_csv(os.path.join(self.dataset_path,'data.csv'), index=False)
+        except FileNotFoundError:
+            df.to_csv(os.path.join(self.dataset_path,'data.csv'), index=False)
 
 
 if __name__ == "__main__":

@@ -113,7 +113,6 @@ class cornerDetector():
         dataset_output_values_data = []
 
         images_dirs = []
-        i = 0 #TODO: DELETE THIS WHEN CHCKING ALL DATA
         for image in os.listdir(self.raw_images_path):
             if image.endswith(".jpg"):
                 image_path = os.path.join(self.raw_images_path, image)

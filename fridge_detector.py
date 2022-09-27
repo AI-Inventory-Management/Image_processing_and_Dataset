@@ -1,3 +1,4 @@
+
 """
 File to detect the fridge corners cordinates so that we can
 cut the image keeping only the fridge and take samples of the

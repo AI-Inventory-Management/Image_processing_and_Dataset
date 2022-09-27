@@ -17,7 +17,7 @@ class cornerDetector():
         self.dataset_path = "./corner_detector_dataset/"
         self.dataset_images_path = os.path.join(self.dataset_path, "images/")
         self.raw_images_path = "./test1_images/"
-        self.image_id_prefix = "josea"
+        self.image_id_prefix = "erandi"
         #print("images path is: {p}".format(p=self.dataset_images_path))
 
     def generate_haar_like_kernels(self):
@@ -111,20 +111,28 @@ class cornerDetector():
         dataset_images_names = []
         dataset_features_data = []
         dataset_output_values_data = []
+
+        images_dirs = []
         i = 0 #TODO: DELETE THIS WHEN CHCKING ALL DATA
         for image in os.listdir(self.raw_images_path):
-            # =================================
-            #TODO: DELETE THIS WHEN CHCKING ALL DATA
-            if i == 1:
-                break
-            # =================================
             if image.endswith(".jpg"):
                 image_path = os.path.join(self.raw_images_path, image)
-                image = cv.imread(image_path)
-                new_image_size = (int(image.shape[1]*0.3), int(image.shape[0]*0.3) )
-                image = cv.resize(image, new_image_size, interpolation = cv.INTER_AREA)
-                self.sweep_image_to_build_dataset(image, dataset_images_names, dataset_features_data, dataset_output_values_data) 
-                i += 1
+                images_dirs.append(image_path)
+        number_of_images = len(images_dirs)
+        one_third_images = int(number_of_images/3)
+        if self.image_id_prefix == 'josea':
+            images_to_check = images_dirs[1*one_third_images-one_third_images:1*one_third_images]
+        elif self.image_id_prefix == 'erandi':
+            images_to_check = images_dirs[2*one_third_images-one_third_images:2*one_third_images]
+            print(images_to_check)
+        elif self.image_id_prefix == 'alex':
+            images_to_check = images_dirs[3*one_third_images-one_third_images:]
+        
+        for image_path in images_to_check:
+            image = cv.imread(image_path)
+            new_image_size = (int(image.shape[1]*0.3), int(image.shape[0]*0.3) )
+            image = cv.resize(image, new_image_size, interpolation = cv.INTER_AREA)
+            self.sweep_image_to_build_dataset(image, dataset_images_names, dataset_features_data, dataset_output_values_data) 
         features = np.array(dataset_features_data)
         data = {
             "image_dir": dataset_images_names, 

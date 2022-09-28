@@ -17,7 +17,7 @@ class cornerDetector():
         self.dataset_path = "./corner_detector_dataset/"
         self.dataset_images_path = os.path.join(self.dataset_path, "images/")
         self.raw_images_path = "./test1_images/"
-        self.image_id_prefix = "josea"
+        self.image_id_prefix = "javier"
 
     def generate_haar_like_kernels(self):
         kernel_size_half = int(self.haar_like_kernels_size[0]/2)

@@ -76,7 +76,6 @@ class cornerDetector():
     def sweep_image_to_build_dataset(self, image, images_names_data, features_data, output_data):
         kernel_size = int(min(image.shape[0], image.shape[1])*self.sweeping_kernel_proportion)
         kernel_size_half = int(kernel_size/2)
-        image_copy = image.copy()
         for i in range(kernel_size_half, image.shape[0] - kernel_size_half, kernel_size_half):
             for j in range(kernel_size_half, image.shape[1] - kernel_size_half, kernel_size_half):
                 image_name = self.image_id_prefix + "_" + str(time.time()).replace('.', '_') + ".jpg"
@@ -118,7 +117,6 @@ class cornerDetector():
             images_to_check = images_dirs[1*one_third_images-one_third_images:1*one_third_images]
         elif self.image_id_prefix == 'javier':
             images_to_check = images_dirs[2*one_third_images-one_third_images:2*one_third_images]
-            print(images_to_check)
         elif self.image_id_prefix == 'alex':
             images_to_check = images_dirs[3*one_third_images-one_third_images:]
 

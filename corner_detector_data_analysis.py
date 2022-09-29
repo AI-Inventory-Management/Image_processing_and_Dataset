@@ -56,11 +56,16 @@ def brightness(img, low, high):
     img = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
     return img
 
-for image_name in corner_entries_dirs:
-    image = cv.imread(image_name)
-    new_img1 = brightness(image, 0.4, 0.6)
-    new_img2 = brightness(image, 0.6, 0.8)
-    new_img3 = brightness(image, 0.8, 0.99)
+#for image_name in corner_entries_dirs:
+#image = cv.imread(image_name)
+image = cv.imread(corner_entries_dirs[0])
+new_img1 = brightness(image, 0.4, 0.6)
+new_img2 = brightness(image, 0.6, 0.8)
+new_img3 = brightness(image, 0.8, 0.99)
+cv.imshow("darker 1", new_img1)
+cv.imshow("darker 2", new_img2)
+cv.imshow("darker 3", new_img3)
+cv.waitKey(0)
 
 
 

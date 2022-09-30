@@ -5,6 +5,50 @@ import matplotlib.pyplot as plt
 import os
 import time
 
+def generate_tresh_combinations(label_img, num_labels):
+    unique_labels = np.unique(label_img)
+    step = int(255/num_labels)
+
+    result_1 = label_img
+    for i in range(num_labels):
+        result_1 = np.where(label_img == unique_labels[i], (i+1)*step, result_1)
+    
+    j = 1
+    tresholds = []
+    resulting_images = [result_1]
+    while (j+1)*step <= 255:
+        tresholds.append( int((j*step + (j+1)*step)/2) )
+        j += 1
+
+    print( "tresholds are: {t}".format(t=tresholds) )
+    for i in range(num_labels):
+        if i == 0:
+            lower_bound = 0
+            upper_bound = tresholds[0]
+        elif i == num_labels-1:
+            lower_bound = tresholds[-1]
+            upper_bound = 255
+        else:
+            lower_bound = tresholds[i-1]
+            upper_bound = tresholds[i]
+        result_n = cv.inRange(result_1, (lower_bound), (upper_bound))
+        #contours, _ = cv.findContours(result_n, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        #contours = [i for i in contours if len(i) == 4]
+        #result_n = cv.merge([result_n, result_n, result_n])
+        #result_n = cv.drawContours(result_n, contours, -1, (0,255,0), 3)
+        
+        """
+        for cnt in contours:
+            epsilon = 0.1*cv.arcLength(cnt,True)
+            approx = cv.approxPolyDP(cnt,epsilon,True)
+            result_n = cv.drawContours(result_n, approx, -1, (0,0,255), 3)
+        """
+        
+        resulting_images.append(result_n)
+    return resulting_images
+    
+
+
 test_images_dir = "./test1_images/"
 raw_images_dirs = []
 for image in os.listdir(test_images_dir):
@@ -58,6 +102,17 @@ for image_name in raw_images_dirs:
 
     res2 = cv.resize(res2, ( int(test_image.shape[1]/2) , int(test_image.shape[0]/2) ) )
 
-    cv.imshow("processed", res2)
+    print(np.unique(res2))
+    print("labels shape is: {s}".format(s=label.shape))
+    print("labels unique values: {u}".format(u=np.unique(label)))
+    cv.imshow("segmented", res2)
+    label_img = np.reshape(label, test_image.shape[:2] )
+    label_img = np.uint8(label_img)
+    # label_img = label_img*50    
+    # print(label_img.dtype)
+    processed_images = generate_tresh_combinations(label_img, K)
+    for i in range(len(processed_images)):
+        img = cv.resize(processed_images[i], ( int(test_image.shape[1]/2) , int(test_image.shape[0]/2) ) )
+        cv.imshow("processed " + str(i), img)
     cv.waitKey(0)
-    print("next")
+    

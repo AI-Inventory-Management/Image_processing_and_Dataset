@@ -1,3 +1,4 @@
+from typing_extensions import final
 import numpy as np
 import cv2 as cv
 import os
@@ -34,7 +35,6 @@ def sort_contours_by_area(contours, hierarchy):
     sorted_hierarchies = np.array([sorted_hierarchies])
     return (sorted_contours, sorted_hierarchies)
 
-
 def filter_contours_to_only_inner(contours, hierarchy):
     does_not_have_next_child = hierarchy[0,:,2] == -1
     does_not_have_next_child = does_not_have_next_child.tolist()
@@ -69,14 +69,14 @@ def find_fridge_content_box(image):
     if(len(contours)==0):
         raise FridgeNotFoundException()
     else:
-        cv.drawContours(image, contours, 0, (0,255,0), 3)
+        #cv.drawContours(image, contours, 0, (0,255,0), 3)
         min_area_rect = cv.minAreaRect(contours[0])
         box = cv.boxPoints(min_area_rect)
         box = np.int0(box)
-        cv.drawContours(image,[box],0,(255,0,0),2)
+        #cv.drawContours(image,[box],0,(255,0,0),2)
         cv.imshow("rectangle content", image)
-        print("box cords : \n {c}".format(c=box))
-        print("inclination_angle = {th}".format(th=min_area_rect[2]))
+        #print("box cords : \n {c}".format(c=box))
+        #print("inclination_angle = {th}".format(th=min_area_rect[2]))
         cv.waitKey(0)
         return box, min_area_rect 
 
@@ -102,6 +102,21 @@ def sort_rectangle_cords(rectangle_cords):
     rectangle_cords_sorted = np.array(rectangle_cords_sorted)
     return rectangle_cords_sorted
 
+def rotate_fridge_content(image, content_cords, content_rectangle_data):
+    m = (content_cords[1,1]-content_cords[0,1])/(content_cords[1,0]-content_cords[0,0])
+    angle = np.rad2deg(np.arctan(m))
+    fridge_content_center = content_rectangle_data[0]
+    ones = np.ones((content_cords.shape[0], 1))
+    rotated_image = image.copy()
+    rotated_cords = content_cords.copy()
+
+    rot_mat = cv.getRotationMatrix2D(fridge_content_center, angle, 1.0)
+    rotated_image = cv.warpAffine(rotated_image, rot_mat, image.shape[1::-1], flags=cv.INTER_LINEAR)
+    rotated_cords = np.concatenate((rotated_cords, ones), axis=1)
+    rotated_cords = (rot_mat@(rotated_cords.T)).T
+    rotated_cords = np.uint(rotated_cords)
+    return (rotated_image, rotated_cords)
+
 for image_name in os.listdir(test_images_dir):
     if image_name.endswith(".jpg"):
         image_dir = os.path.join(test_images_dir, image_name)
@@ -112,9 +127,10 @@ for image_name in os.listdir(test_images_dir):
         new_image = cv.resize(image, reduced_dims)
         content_rectangle_cords, content_rectangle = find_fridge_content_box(new_image)
         content_rectangle_cords = sort_rectangle_cords(content_rectangle_cords)
-        
 
+        rotated_image, final_content_cords = rotate_fridge_content(new_image, content_rectangle_cords, content_rectangle)
+        content_image = rotated_image[final_content_cords[0,1]:final_content_cords[3,1], final_content_cords[0,0]:final_content_cords[3,0]]
+        cv.imshow("content image", content_image)
+        cv.waitKey(0)
+        #print(final_content_cords)
         
-        
-
-    

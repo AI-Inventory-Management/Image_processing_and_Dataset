@@ -32,17 +32,26 @@ def generate_tresh_combinations(label_img, num_labels):
             lower_bound = tresholds[i-1]
             upper_bound = tresholds[i]
         result_n = cv.inRange(result_1, (lower_bound), (upper_bound))
-        #contours, _ = cv.findContours(result_n, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv.findContours(result_n, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         #contours = [i for i in contours if len(i) == 4]
-        #result_n = cv.merge([result_n, result_n, result_n])
+        result_n = cv.merge([result_n, result_n, result_n])
         #result_n = cv.drawContours(result_n, contours, -1, (0,255,0), 3)
+        image_area = result_n.shape[0]*result_n.shape[1]
+        dim = (result_n.shape[1]//2, result_n.shape[0]//2)
+
+        new_contours = []
+        for cnt in contours:        
+            area = cv.contourArea(cnt)         
+            if area > image_area*(1/20):                   
+                new_contours.append(cnt)
         
-        """
-        for cnt in contours:
-            epsilon = 0.1*cv.arcLength(cnt,True)
-            approx = cv.approxPolyDP(cnt,epsilon,True)
-            result_n = cv.drawContours(result_n, approx, -1, (0,0,255), 3)
-        """
+        for i in range(len(new_contours)):
+            result_n_copy = result_n.copy()
+            result_n_copy = cv.drawContours(result_n_copy, new_contours, i, (0,0,255), 3)
+            result_n_copy = cv.resize(result_n_copy, dim)
+            cv.imshow("coutour", result_n_copy)
+            print("i = " + str(i)) 
+            cv.waitKey(0)
         
         resulting_images.append(result_n)
     return resulting_images
@@ -57,15 +66,7 @@ for image in os.listdir(test_images_dir):
 
 for image_name in raw_images_dirs:
     test_image = cv.imread(image_name)
-    #gray_image = cv.cvtColor(test_image, cv.COLOR_BGR2GRAY)
-    """
-    kernel = np.ones((5, 5), np.uint8)
-    gray_image = cv.erode(gray_image, kernel)
-    gray_image = cv.erode(gray_image, kernel)
-    gray_image = cv.erode(gray_image, kernel)
-    gray_image = cv.erode(gray_image, kernel)
-    opening = cv.morphologyEx(img, cv.MORPH_OPEN, kernel)
-    """
+    
     """
     kernel = np.array([[0, -1, 0],
                    [-1, 5,-1],
@@ -97,9 +98,6 @@ for image_name in raw_images_dirs:
     center = np.uint8(center)
     res = center[label.flatten()]
     res2 = res.reshape((test_image.shape))
-    #cv.imshow('res2',res2)
-
-
     res2 = cv.resize(res2, ( int(test_image.shape[1]/2) , int(test_image.shape[0]/2) ) )
 
     print(np.unique(res2))
@@ -108,11 +106,14 @@ for image_name in raw_images_dirs:
     cv.imshow("segmented", res2)
     label_img = np.reshape(label, test_image.shape[:2] )
     label_img = np.uint8(label_img)
-    # label_img = label_img*50    
-    # print(label_img.dtype)
+    
     processed_images = generate_tresh_combinations(label_img, K)
+    
+    """
+    # displaying processed images after aplying tresh
     for i in range(len(processed_images)):
         img = cv.resize(processed_images[i], ( int(test_image.shape[1]/2) , int(test_image.shape[0]/2) ) )
         cv.imshow("processed " + str(i), img)
     cv.waitKey(0)
+    """
     

@@ -12,7 +12,7 @@ class FridgeNotFoundException(Exception):
 
 class FridgeContentDetector():
     def __init__(self) -> None:
-        self.demo_images_dir = "./test2_images/"
+        self.demo_images_dir = "./test4_images/"
     
     def filter_coutours_by_area(self, contours, hierarchy, area):
         new_contours = []
@@ -53,7 +53,7 @@ class FridgeContentDetector():
 
     def find_fridge_content_box(self, image):
         height, width = image.shape[:2]
-        morph_kernel_size = int(min(width,height)*0.025)
+        morph_kernel_size = int(min(width,height)*0.03)
         morph_kernel = np.ones((morph_kernel_size,morph_kernel_size),np.uint8)
 
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -64,20 +64,21 @@ class FridgeContentDetector():
 
         contours, hierarchy = cv.findContours(fridge_treshold, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
         contours, hierarchy = self.filter_coutours_by_area(contours, hierarchy, width*height*(1/10))
-        contours, hierarchy = self.filter_contours_to_only_inner(contours, hierarchy)
-        contours, hierarchy = self.sort_contours_by_area(contours, hierarchy)
-
         if(len(contours)==0):
             raise FridgeNotFoundException()
-        else:
-            fridge_treshold_copy = fridge_treshold.copy()
-            fridge_treshold_copy = cv.merge((fridge_treshold_copy, fridge_treshold_copy, fridge_treshold_copy))
-            cv.drawContours(fridge_treshold_copy, contours, -1, (0,255,0), 3)
-            cv.imshow("tresholded image", fridge_treshold_copy)            
-            min_area_rect = cv.minAreaRect(contours[0])
-            box = cv.boxPoints(min_area_rect)
-            box = np.int0(box)            
-            return box, min_area_rect
+        contours, hierarchy = self.filter_contours_to_only_inner(contours, hierarchy)
+        if(len(contours)==0):
+            raise FridgeNotFoundException()
+        contours, hierarchy = self.sort_contours_by_area(contours, hierarchy)
+
+        fridge_treshold_copy = fridge_treshold.copy()
+        fridge_treshold_copy = cv.merge((fridge_treshold_copy, fridge_treshold_copy, fridge_treshold_copy))
+        cv.drawContours(fridge_treshold_copy, contours, -1, (0,255,0), 3)
+        cv.imshow("tresholded image", fridge_treshold_copy)            
+        min_area_rect = cv.minAreaRect(contours[0])
+        box = cv.boxPoints(min_area_rect)
+        box = np.int0(box)            
+        return box, min_area_rect
 
     def sort_rectangle_cords(self, rectangle_cords):
         '''
@@ -146,10 +147,13 @@ class FridgeContentDetector():
                 height, width = image.shape[:2]
                 reduced_dims = ( width//2 , height//2 )
                 image = cv.resize(image, reduced_dims)
-                content_cells = self.get_fridge_cells(image, 2, 4)
-                for i in range(len(content_cells)):
-                    cv.imshow("cell " + str(i), content_cells[i])
-                cv.waitKey(0)
+                try:
+                    content_cells = self.get_fridge_cells(image, 2, 4)
+                    for i in range(len(content_cells)):
+                        cv.imshow("cell " + str(i), content_cells[i])
+                    cv.waitKey(0)
+                except FridgeNotFoundException:
+                    print("fridge not found on image: {im_name}".format(im_name=image_name))
 
 if __name__ == "__main__":
     fridge_content_detector = FridgeContentDetector()

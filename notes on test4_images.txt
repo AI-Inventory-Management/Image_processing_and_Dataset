@@ -1,0 +1,11 @@
+All images on test 4 show our test fridge with 
+the noice we expect costumers will generate, this dataset is designed 
+to test the efficiency of FridgeContentDetector class, expecting that 
+this class throws a "FridgeNotFoundException" for any image where the
+fridge is completly covered or partialy covered.
+
+Results of the test:
+the class behaves fully as expected detecting the fridge cells for
+images WIN_20221004_15_22_09_Pro to WIN_20221004_15_22_13_Pro, while
+for images WIN_20221004_15_22_17_Pro to WIN_20221004_15_25_17_Pro the
+class throws a FridgeNotFoundException

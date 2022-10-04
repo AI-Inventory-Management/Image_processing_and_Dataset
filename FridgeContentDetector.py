@@ -53,7 +53,7 @@ class FridgeContentDetector():
 
     def find_fridge_content_box(self, image):
         height, width = image.shape[:2]
-        morph_kernel_size = int(min(width,height)*0.02)
+        morph_kernel_size = int(min(width,height)*0.025)
         morph_kernel = np.ones((morph_kernel_size,morph_kernel_size),np.uint8)
 
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
@@ -69,7 +69,11 @@ class FridgeContentDetector():
 
         if(len(contours)==0):
             raise FridgeNotFoundException()
-        else:            
+        else:
+            fridge_treshold_copy = fridge_treshold.copy()
+            fridge_treshold_copy = cv.merge((fridge_treshold_copy, fridge_treshold_copy, fridge_treshold_copy))
+            cv.drawContours(fridge_treshold_copy, contours, -1, (0,255,0), 3)
+            cv.imshow("tresholded image", fridge_treshold_copy)            
             min_area_rect = cv.minAreaRect(contours[0])
             box = cv.boxPoints(min_area_rect)
             box = np.int0(box)            

@@ -12,7 +12,7 @@ class FridgeNotFoundException(Exception):
 
 class FridgeContentDetector():
     def __init__(self) -> None:
-        demo_images_dir = "./test2_images/"
+        self.demo_images_dir = "./test2_images/"
     
     def filter_coutours_by_area(self, contours, hierarchy, area):
         new_contours = []
@@ -97,7 +97,7 @@ class FridgeContentDetector():
         rectangle_cords_sorted = np.array(rectangle_cords_sorted)
         return rectangle_cords_sorted
 
-    def rotate_fridge_content(image, content_cords, content_rectangle_data):
+    def rotate_fridge_content(self, image, content_cords, content_rectangle_data):
         m = (content_cords[1,1]-content_cords[0,1])/(content_cords[1,0]-content_cords[0,0])
         angle = np.rad2deg(np.arctan(m))
         fridge_content_center = content_rectangle_data[0]
@@ -119,4 +119,35 @@ class FridgeContentDetector():
         content_image = rotated_image[final_content_cords[0,1]:final_content_cords[3,1], final_content_cords[0,0]:final_content_cords[3,0]]
         return content_image
     
+    def get_fridge_cells(self, raw_image, fridge_rows_count, fridge_columns_count, output_shape=(150,420)):
+        fridge_content = self.get_fridge_content_image(raw_image)
+        fridge_content_h, fridge_content_w = fridge_content.shape[:2] 
+        vertical_boundaries = np.linspace(0,fridge_content_h, fridge_rows_count+1, dtype=np.int0)
+        horizontal_boundaries = np.linspace(0,fridge_content_w, fridge_columns_count+1, dtype=np.int0)
+        content_cells = []
+        
+        for i in range(1,len(vertical_boundaries)):
+            for j in range(1,len(horizontal_boundaries)):
+                cell = fridge_content[vertical_boundaries[i-1]:vertical_boundaries[i], horizontal_boundaries[j-1]:horizontal_boundaries[j]]
+                cell = cv.resize(cell, output_shape)
+                content_cells.append(cell)
+
+        return content_cells
+
+    def run_demo(self):
+        for image_name in os.listdir(self.demo_images_dir):
+            if image_name.endswith(".jpg"):
+                image_dir = os.path.join(self.demo_images_dir, image_name)
+                image = cv.imread(image_dir)
+                height, width = image.shape[:2]
+                reduced_dims = ( width//2 , height//2 )
+                image = cv.resize(image, reduced_dims)
+                content_cells = self.get_fridge_cells(image, 2, 4)
+                for i in range(len(content_cells)):
+                    cv.imshow("cell " + str(i), content_cells[i])
+                cv.waitKey(0)
+
+if __name__ == "__main__":
+    fridge_content_detector = FridgeContentDetector()
+    fridge_content_detector.run_demo()
     

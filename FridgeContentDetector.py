@@ -1,6 +1,8 @@
 import numpy as np
 import cv2 as cv
 import os
+import pandas as pd
+import time
 
 class FridgeNotFoundException(Exception):
     """
@@ -12,7 +14,26 @@ class FridgeNotFoundException(Exception):
 
 class FridgeContentDetector():
     def __init__(self) -> None:
-        self.demo_images_dir = "./test4_images/"
+        self.demo_images_dir = "./sodas_dataset_raw/session 1/"
+        self.sodas_sessions_dir = "./sodas_dataset_raw/session {session_num}/"
+        self.sodas_final_dataset_dir = "./sodas_dataset/"
+
+    def correct_image_brightness(self, raw_image):
+        height, width = raw_image.shape[:2]
+        hsv = cv.cvtColor(raw_image, cv.COLOR_BGR2HSV)
+        h,s,v = cv.split(hsv)
+        brightness_ratio_1 = 0.70
+        brightness_ratio_2 =  (v.sum())/(height*width*255.0)
+        m = int((brightness_ratio_1 - brightness_ratio_2)*255.0)
+        v = np.int64(v)
+        v = v+m
+        v[v>255] = 255
+        v[v<0] = 0
+        v = np.uint8(v)
+        new_image = cv.merge((h,s,v))
+        new_image = cv.cvtColor(new_image, cv.COLOR_HSV2BGR)
+        #cv.imshow("corrected_brightness", new_image)
+        return new_image
     
     def filter_coutours_by_area(self, contours, hierarchy, area):
         new_contours = []
@@ -53,15 +74,19 @@ class FridgeContentDetector():
 
     def find_fridge_content_box(self, image):
         height, width = image.shape[:2]
-        morph_kernel_size = int(min(width,height)*0.03)
-        morph_kernel = np.ones((morph_kernel_size,morph_kernel_size),np.uint8)
+        opening_kernel_size = int(min(width,height)*0.025)
+        closing_kernel_size = int(min(width,height)*0.01)
+        opening_kernel = np.ones((opening_kernel_size,opening_kernel_size),np.uint8)
+        closing_kernel = np.ones((closing_kernel_size,closing_kernel_size),np.uint8)
 
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-        fridge_treshold_1 = cv.inRange(hsv, (160, 70, 50), (180, 255,255))
-        fridge_treshold_2 = cv.inRange(hsv, (0, 70, 50), (10, 255,255))
+        fridge_treshold_1 = cv.inRange(hsv, (160, 50, 50), (180, 255,255))
+        fridge_treshold_2 = cv.inRange(hsv, (0, 50, 50), (10, 255,255))
         fridge_treshold = cv.bitwise_or(fridge_treshold_1, fridge_treshold_2)
-        fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, morph_kernel)
+        fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, opening_kernel)
+        fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_CLOSE, closing_kernel)
 
+        #cv.imshow("tresholded image no cnt", fridge_treshold)          
         contours, hierarchy = cv.findContours(fridge_treshold, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
         contours, hierarchy = self.filter_coutours_by_area(contours, hierarchy, width*height*(1/10))
         if(len(contours)==0):
@@ -73,8 +98,8 @@ class FridgeContentDetector():
 
         fridge_treshold_copy = fridge_treshold.copy()
         fridge_treshold_copy = cv.merge((fridge_treshold_copy, fridge_treshold_copy, fridge_treshold_copy))
-        cv.drawContours(fridge_treshold_copy, contours, -1, (0,255,0), 3)
-        cv.imshow("tresholded image", fridge_treshold_copy)            
+        #cv.drawContours(fridge_treshold_copy, contours, -1, (0,255,0), 3)
+        #cv.imshow("tresholded image", fridge_treshold_copy)            
         min_area_rect = cv.minAreaRect(contours[0])
         box = cv.boxPoints(min_area_rect)
         box = np.int0(box)            
@@ -118,6 +143,7 @@ class FridgeContentDetector():
         return (rotated_image, rotated_cords)
 
     def get_fridge_content_image(self, raw_image):
+        #new_raw_image = self.correct_image_brightness(raw_image)
         content_rectangle_cords, content_rectangle = self.find_fridge_content_box(raw_image)
         content_rectangle_cords = self.sort_rectangle_cords(content_rectangle_cords)
         rotated_image, final_content_cords = self.rotate_fridge_content(raw_image, content_rectangle_cords, content_rectangle)
@@ -151,11 +177,43 @@ class FridgeContentDetector():
                     content_cells = self.get_fridge_cells(image, 2, 4)
                     for i in range(len(content_cells)):
                         cv.imshow("cell " + str(i), content_cells[i])
-                    cv.waitKey(0)
                 except FridgeNotFoundException:
                     print("fridge not found on image: {im_name}".format(im_name=image_name))
+                cv.waitKey(0)
+    
+    def generate_dataset(self):
+        df = pd.read_excel('./sodas_dataset_raw/session classes.xlsx')
+        df.drop('Session number', axis=1, inplace=True)
+        labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml', 'fresca botella de plastico 600 ml', 'fuze tea durazno 600 ml', 'power ade mora azul botella de plastico 500 ml', 'delaware punch lata 355 ml', 'vacio', 'del valle durazno botella de vidrio 413 ml', 'sidral mundet botella de plastico 600 ml', 'coca cola botella de plastico 600 ml', 'power ade mora azul lata 453 ml', 'coca cola lata 355 ml']
+        num_to_label = {}
+        label_to_num = {}
+        for i in range(len(labels)):
+            num_to_label[i] = labels[i]
+            label_to_num[labels[i]] = i
+        
+        for index, row in df.iterrows():
+            session_labels = row.tolist()
+            session_dir = self.sodas_sessions_dir.format(session_num=index+1)
+            for image_name in os.listdir(session_dir):
+                if image_name.endswith(".jpg"):
+                    image_dir = os.path.join(session_dir, image_name)
+                    image = cv.imread(image_dir)
+                    try:
+                        content_cells = self.get_fridge_cells(image, 2, 4)
+                        for i in range(len(content_cells)):
+                            saving_path = os.path.join(self.sodas_final_dataset_dir, str(label_to_num[session_labels[i]]), str(time.time()).replace(".", "_") + ".jpg" )
+                            print(saving_path)
+                            cv.imwrite(saving_path, content_cells[i])     
+                    except FridgeNotFoundException:
+                        print("fridge not found on image: {session_dir} {im_name}".format(session_dir = session_dir, im_name=image_name))
+                    cv.waitKey(0)
+                    
+        
+        
 
 if __name__ == "__main__":
     fridge_content_detector = FridgeContentDetector()
-    fridge_content_detector.run_demo()
+    #fridge_content_detector.run_demo()
+    fridge_content_detector.generate_dataset()
+    
     

@@ -7,7 +7,7 @@ app.secret_key = "Confidential_secret"
 
 recieved_data = {}
 
-@app.route('/', methods = ['GET'])
+@app.route('/', methods = ['GET'])  
 def home():
     send_data()
     return render_template('home_template.html')
@@ -21,4 +21,4 @@ def send_data():
         print(res.json())
 
 if __name__ == '__main__':
-	app.run(host = '0.0.0.0',port = 5000, debug = True)
+	app.run(host = '0.0.0.0',port = 6000, debug = True)

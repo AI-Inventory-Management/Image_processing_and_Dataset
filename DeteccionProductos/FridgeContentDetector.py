@@ -74,7 +74,7 @@ class FridgeContentDetector():
         fridge_treshold_copy = fridge_treshold.copy()
         fridge_treshold_copy = cv.merge((fridge_treshold_copy, fridge_treshold_copy, fridge_treshold_copy))
         cv.drawContours(fridge_treshold_copy, contours, -1, (0,255,0), 3)
-        cv.imshow("tresholded image", fridge_treshold_copy)            
+        # cv.imshow("tresholded image", fridge_treshold_copy)            
         min_area_rect = cv.minAreaRect(contours[0])
         box = cv.boxPoints(min_area_rect)
         box = np.int0(box)            

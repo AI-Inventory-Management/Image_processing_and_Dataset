@@ -66,6 +66,8 @@ class FridgeContentCounter():
                 content = self.get_content_count(image, verbose = verbose)
                 print(content)
                 
+        cv.destroyAllWindows()
+                
 if __name__ == "__main__":
     product_counter = FridgeContentCounter()
-    product_counter.run_demo(verbose = True)
+    product_counter.run_demo(verbose = False)

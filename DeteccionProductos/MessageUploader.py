@@ -13,6 +13,10 @@ class MessageUploader ():
         self.demo_images_dir = demo_images_dir
         self.message = ""
     
+    def capture_image(self):
+        camera = cv.VideoCapture(0)
+        res, self.image = camera.read()
+    
     def randomize_upload_time(self, time_range = (0, 30)):
         min_time = time_range[0] * 60
         max_time = time_range[1] * 60

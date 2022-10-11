@@ -52,9 +52,14 @@ class MessageUploader ():
                 if verbose:
                     cv.imshow("Imagen Actual", self.image)
                     cv.waitKey(0)
-                    
+        
         cv.destroyAllWindows()
+        
+    def run_camera_demo(self):
+        self.capture_image()
+        self.build_message()
+        self.upload_message(time_range = (0,1), verbose = True)
                 
 if __name__ == "__main__":
     uploader = MessageUploader()
-    uploader.run_demo(verbose = True)
+    uploader.run_camera_demo()

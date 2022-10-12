@@ -14,7 +14,7 @@ class MessageUploader ():
         self.message = ""
     
     def capture_image(self):
-        camera = cv.VideoCapture(0)
+        camera = cv.VideoCapture(2)
         res, self.image = camera.read()
     
     def randomize_upload_time(self, time_range = (0, 30)):

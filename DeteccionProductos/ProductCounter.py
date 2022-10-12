@@ -6,7 +6,7 @@ import tensorflow.keras.models as models
 from FridgeContentDetector import *
 
 class FridgeContentCounter():
-    def __init__(self, model_path = './sodas_detector2', demo_images_dir = "../test3_images", labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml', 'fresca botella de plastico 600 ml', 'fuze tea durazno 600 ml', 'power ade mora azul botella de plastico 500 ml', 'delaware punch lata 355 ml', 'vacio', 'del valle durazno botella de vidrio 413 ml', 'sidral mundet botella de plastico 600 ml', 'coca cola botella de plastico 600 ml', 'power ade mora azul lata 453 ml', 'coca cola lata 355 ml']):
+    def __init__(self, model_path = './sodas_detector_prot', demo_images_dir = "../test3_images", labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml', 'fresca botella de plastico 600 ml', 'fuze tea durazno 600 ml', 'power ade mora azul botella de plastico 500 ml', 'delaware punch lata 355 ml', 'vacio', 'del valle durazno botella de vidrio 413 ml', 'sidral mundet botella de plastico 600 ml', 'coca cola botella de plastico 600 ml', 'power ade mora azul lata 453 ml', 'coca cola lata 355 ml']):
         self.model_path = model_path
         self.demo_images_dir = demo_images_dir
         self.labels = labels
@@ -41,9 +41,10 @@ class FridgeContentCounter():
             content_count[org_label] = 0
         
         for cell in content_cells:
-            * gray_cell = cv.cvtColor(cell, cv.COLOR_BGR2GRAY)
+            #gray_cell = cv.cvtColor(cell, cv.COLOR_BGR2GRAY)
+            cell = cell/255
             expanded_cell = np.expand_dims(cell, axis = 0)
-            expanded_cell = np.expand_dims(expanded_cell, axis = 3)
+            #expanded_cell = np.expand_dims(expanded_cell, axis = 3)
             pred = model.predict(expanded_cell)[0]  
             max_pred = np.amax(pred)
             label = self.labels[int(np.where(pred == max_pred)[0])]

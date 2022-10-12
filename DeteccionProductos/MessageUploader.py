@@ -3,6 +3,7 @@ import cv2 as cv
 import numpy as np
 import os
 from threading import Event
+import requests
 
 from ProductCounter import FridgeContentCounter
 
@@ -12,6 +13,7 @@ class MessageUploader ():
         self.image = image
         self.demo_images_dir = demo_images_dir
         self.message = ""
+        self.severs_handler_endpoint = "http://127.0.0.1:7000/constant_messages"
     
     def capture_image(self):
         camera = cv.VideoCapture(2)
@@ -29,14 +31,22 @@ class MessageUploader ():
         dt = datetime.now()
         timestamp = datetime.timestamp(dt)
         
-        self.message = "TEMP_MESSAGE\n" + self.store_id + "\n" + str(content_count) + "\n" + str(timestamp)
+        #self.message = "TEMP_MESSAGE\n" + self.store_id + "\n" + str(content_count) + "\n" + str(timestamp)
+        self.message["store_id"] = self.store_id
+        self.message["content_count"] = content_count
+        self.message["timestamp"] = str(timestamp)
 
     def upload_message(self, time_range = (0, 30), verbose = False):
         wait_time = self.randomize_upload_time(time_range)
         if verbose:
             print(wait_time)
         Event().wait(wait_time)
+        res = requests.post(self.severs_handler_endpoint, json=self.message)
+        if res.ok:
+            print("data sended to server succesfully")
+            print(res.json())
         print(self.message)
+        
     
     def run_demo(self, verbose = False):
         for image_name in os.listdir(self.demo_images_dir):

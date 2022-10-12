@@ -12,8 +12,9 @@ class MessageUploader ():
         self.store_id = "1"
         self.image = image
         self.demo_images_dir = demo_images_dir
-        self.message = ""
-        self.severs_handler_endpoint = "http://127.0.0.1:7000/constant_messages"
+        self.message = {}
+        self.severs_handler_endpoint = "http://192.168.195.106:7000/constant_messages"
+        self.fridge = FridgeContentCounter()
     
     def capture_image(self):
         camera = cv.VideoCapture(2)
@@ -26,8 +27,7 @@ class MessageUploader ():
         return np.random.randint(min_time, max_time)
     
     def build_message(self):
-        fridge = FridgeContentCounter()
-        content_count = fridge.get_content_count(self.image)
+        content_count = self.fridge.get_content_count(self.image)
         dt = datetime.now()
         timestamp = datetime.timestamp(dt)
         
@@ -71,7 +71,7 @@ class MessageUploader ():
             self.build_message()
             self.upload_message(time_range = (0,0.1), verbose = True)
             cv.imshow("Foto", self.image)
-            pressed_key = cv.waitkey(0)
+            pressed_key = cv.waitKey(0)
             if pressed_key == 0x15:
                 # if user pressed q
                 break

@@ -6,11 +6,14 @@ import tensorflow.keras.models as models
 from FridgeContentDetector import *
 
 class FridgeContentCounter():
-    def __init__(self, model_path = './sodas_detector_prot', demo_images_dir = "../test3_images", labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml', 'fresca botella de plastico 600 ml', 'fuze tea durazno 600 ml', 'power ade mora azul botella de plastico 500 ml', 'delaware punch lata 355 ml', 'vacio', 'del valle durazno botella de vidrio 413 ml', 'sidral mundet botella de plastico 600 ml', 'coca cola botella de plastico 600 ml', 'power ade mora azul lata 453 ml', 'coca cola lata 355 ml']):
+    def __init__(self, model_path = './sodas_detector_prot', demo_images_dir = "../test3_images", labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml', 'fresca botella de plastico 600 ml', 'fuze tea durazno 600 ml', 'power ade mora azul botella de plastico 500 ml', 'delaware punch lata 355 ml', 'vacio', 'del valle durazno botella de vidrio 413 ml', 'sidral mundet botella de plastico 600 ml', 'coca cola botella de plastico 600 ml', 'power ade mora azul lata 453 ml', 'coca cola lata 355 ml', 'producto no oficial'], alfa = 0.5, beta = 0.5, thresh = 0.7):
         self.model_path = model_path
         self.demo_images_dir = demo_images_dir
         self.labels = labels
-        
+        self.prev_pred = np.ones((8, len(self.labels) - 1))
+        self.alfa = alfa
+        self.beta = beta
+        self.thresh = thresh
     
     def show_count_result(self, label, max_pred, cell_num, cell):
         pred_lbl = label 
@@ -31,28 +34,56 @@ class FridgeContentCounter():
     
     def get_content_count(self, raw_image, fridge_rows_count = 2, fridge_columns_count = 4, output_shape=(150,420), verbose = False):
         fridge_content_detector = FridgeContentDetector()
-        content_cells = fridge_content_detector.get_fridge_cells(raw_image, fridge_rows_count, fridge_columns_count, output_shape)
-        
-        model = models.load_model(self.model_path)
-        cell_num = 1
         
         content_count = {}
         for org_label in self.labels:
             content_count[org_label] = 0
-        
-        for cell in content_cells:
-            #gray_cell = cv.cvtColor(cell, cv.COLOR_BGR2GRAY)
-            cell = cell/255
-            expanded_cell = np.expand_dims(cell, axis = 0)
-            #expanded_cell = np.expand_dims(expanded_cell, axis = 3)
-            pred = model.predict(expanded_cell)[0]  
-            max_pred = np.amax(pred)
-            label = self.labels[int(np.where(pred == max_pred)[0])]
-            if verbose:
-                self.show_count_result(label, max_pred, cell_num, cell)
-            cell_num += 1
             
-            content_count[label] += 1
+        cell_num = 1
+        
+        try:
+            content_cells = fridge_content_detector.get_fridge_cells(raw_image, fridge_rows_count, fridge_columns_count, output_shape)
+            model = models.load_model(self.model_path)
+            
+            for cell in content_cells:
+                # gray_cell = cv.cvtColor(cell, cv.COLOR_BGR2GRAY)
+                cell = cell/255
+                expanded_cell = np.expand_dims(cell, axis = 0)
+                # expanded_cell = np.expand_dims(expanded_cell, axis = 3)
+                pred = model.predict(expanded_cell)[0]
+                
+                sum_preds = self.alfa * self.prev_pred[cell_num - 1] + self.beta * pred
+                
+                self.prev_pred[cell_num - 1] = pred
+                
+                max_pred = np.amax(sum_preds)
+                
+                if max_pred < self.thresh:
+                    label = self.labels[-1]
+                else:
+                    label = self.labels[int(np.where(sum_preds == max_pred)[0])]
+                
+                
+                if verbose:
+                    self.show_count_result(label, max_pred, cell_num, cell)
+                cell_num += 1
+                
+                content_count[label] += 1
+                
+        except FridgeNotFoundException:
+            
+            for i in range(8):
+                sum_preds = self.prev_pred[i]
+                
+                max_pred = np.amax(sum_preds)
+                
+                if max_pred < self.thresh:
+                    label = self.labels[-1]
+                else:
+                    label = self.labels[int(np.where(sum_preds == max_pred)[0])]
+                
+                content_count[label] += 1
+        
         
         return content_count
             
@@ -71,4 +102,4 @@ class FridgeContentCounter():
                 
 if __name__ == "__main__":
     product_counter = FridgeContentCounter()
-    product_counter.run_demo(verbose = False)
+    product_counter.run_demo(verbose = True)

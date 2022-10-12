@@ -58,7 +58,7 @@ class MessageUploader ():
     def run_camera_demo(self):
         self.capture_image()
         self.build_message()
-        self.upload_message(time_range = (0,1), verbose = True)
+        self.upload_message(time_range = (0,0.1), verbose = True)
                 
 if __name__ == "__main__":
     uploader = MessageUploader()

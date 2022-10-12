@@ -66,10 +66,17 @@ class MessageUploader ():
         cv.destroyAllWindows()
         
     def run_camera_demo(self):
-        self.capture_image()
-        self.build_message()
-        self.upload_message(time_range = (0,0.1), verbose = True)
-                
+        while True:
+            self.capture_image()
+            self.build_message()
+            self.upload_message(time_range = (0,0.1), verbose = True)
+            cv.imshow("Foto", self.image)
+            pressed_key = cv.waitkey(0)
+            if pressed_key == 0x15:
+                # if user pressed q
+                break
+            #Event().wait(30)
+            
 if __name__ == "__main__":
     uploader = MessageUploader()
     uploader.run_camera_demo()

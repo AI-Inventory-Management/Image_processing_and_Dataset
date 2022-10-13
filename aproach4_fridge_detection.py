@@ -123,8 +123,8 @@ for image_name in os.listdir(test_images_dir):
         image = cv.imread(image_dir)
         height, width = image.shape[:2]
         reduced_dims = ( width//2 , height//2 )
-
         new_image = cv.resize(image, reduced_dims)
+        
         content_rectangle_cords, content_rectangle = find_fridge_content_box(new_image)
         content_rectangle_cords = sort_rectangle_cords(content_rectangle_cords)
 

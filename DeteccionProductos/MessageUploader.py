@@ -13,7 +13,7 @@ class MessageUploader ():
         self.image = image
         self.demo_images_dir = demo_images_dir
         self.message = {}
-        self.severs_handler_endpoint = "http://192.168.195.106:7000/constant_messages"
+        self.severs_handler_endpoint = "http://192.168.0.25:7000/constant_messages"
         self.fridge = FridgeContentCounter()
     
     def capture_image(self):
@@ -46,7 +46,19 @@ class MessageUploader ():
             print("data sended to server succesfully")
             print(res.json())
         print(self.message)
+
+    def upload_test_mesage(self):
+        '''method that will be used to send dummy data to test server connection
+        PLEASE DO NOT USE THIS IN PRODUCTION'''
+        content_count = {'fresca':0, 'delaware': 3}
+        dt = datetime.now()
+        timestamp = datetime.timestamp(dt)
         
+        #self.message = "TEMP_MESSAGE\n" + self.store_id + "\n" + str(content_count) + "\n" + str(timestamp)
+        self.message["store_id"] = self.store_id
+        self.message["content_count"] = content_count
+        self.message["timestamp"] = str(timestamp)
+        self.upload_message(verbose=True)        
     
     def run_demo(self, verbose = False):
         for image_name in os.listdir(self.demo_images_dir):
@@ -79,4 +91,5 @@ class MessageUploader ():
             
 if __name__ == "__main__":
     uploader = MessageUploader()
-    uploader.run_camera_demo()
+    #uploader.run_camera_demo()
+    uploader.upload_test_mesage()

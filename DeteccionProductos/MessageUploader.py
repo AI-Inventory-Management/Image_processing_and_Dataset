@@ -9,11 +9,11 @@ from ProductCounter import FridgeContentCounter
 
 class MessageUploader ():
     def __init__(self, image = [], store_id = "1",  demo_images_dir = "../test5_images"):
-        self.store_id = "1"
+        self.store_id = "41"
         self.image = image
         self.demo_images_dir = demo_images_dir
         self.message = {}
-        self.severs_handler_endpoint = "http://192.168.0.25:7000/constant_messages"
+        self.severs_handler_endpoint = "http://192.168.195.106:7000/constant_messages"
         self.fridge = FridgeContentCounter()
     
     def capture_image(self):
@@ -51,7 +51,7 @@ class MessageUploader ():
     def upload_test_mesage(self):
         '''method that will be used to send dummy data to test server connection
         PLEASE DO NOT USE THIS IN PRODUCTION'''
-        content_count = {'fresca lata 355 ml':2, 'delaware punch lata 355 ml': 3}
+        content_count = {'fresca lata 355 ml':4, 'sidral mundet lata 355 ml': 1}
         dt = datetime.now()
         timestamp = datetime.timestamp(dt)
         

@@ -8,7 +8,7 @@ import requests
 class InitializationMessageUploader():
     def __init__(self):        
         self.message = {}
-        self.severs_handler_endpoint = "http://192.168.0.25:7000/initaialization_messages"
+        self.severs_handler_endpoint = "http://192.168.195.106:7000/initaialization_messages"
         '''
         self.soda_labels = [
             'fresca lata 355 ml',
@@ -33,22 +33,20 @@ class InitializationMessageUploader():
         store_state:str,
         store_municipality:str,
         store_zip_code:int,
-        store_adress:str,
+        store_address:str,
         store_curr_stock:dict, 
         store_min_stocks:dict,
-        store_max_stocks:dict,
-        store_status:int):                
+        store_max_stocks:dict):                
         self.message["store_name"] = store_name
         self.message["store_latitude"] = store_latitude
         self.message["store_longitude"] = store_longitude
         self.message["store_state"] = store_state
         self.message["store_municipality"] = store_municipality
         self.message["store_zip_code"] = store_zip_code
-        self.message["store_adress"] = store_adress
+        self.message["store_address"] = store_address
         self.message["store_curr_stock"] = store_curr_stock
         self.message["store_min_stocks"] = store_min_stocks
         self.message["store_max_stocks"] = store_max_stocks
-        self.message["store_status"] = store_status
 
     def upload_message(self, verbose = False):
         res = requests.post(self.severs_handler_endpoint, json=self.message)
@@ -79,11 +77,9 @@ class InitializationMessageUploader():
             current_stock[soda] = int(input("how many {s} are on the store right now: ".format(s=soda)))
             min_stocks[soda] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
             max_stocks[soda] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
-        
-        store_status = 1
 
-        self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks, store_status)
-        self.upload_message(verbose=True) 
+        self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks)
+        self.upload_message(verbose=True)
             
 if __name__ == "__main__":
     uploader = InitializationMessageUploader()

@@ -34,11 +34,12 @@ class MessageUploader ():
         #self.message = "TEMP_MESSAGE\n" + self.store_id + "\n" + str(content_count) + "\n" + str(timestamp)
         self.message["store_id"] = self.store_id
         self.message["content_count"] = content_count
-        self.message["timestamp"] = str(timestamp)
+        self.message["timestamp"] = str(timestamp)        
 
     def upload_message(self, time_range = (0, 30), verbose = False):
         wait_time = self.randomize_upload_time(time_range)
         if verbose:
+            print("wait time is:")
             print(wait_time)
         Event().wait(wait_time)
         res = requests.post(self.severs_handler_endpoint, json=self.message)
@@ -50,7 +51,7 @@ class MessageUploader ():
     def upload_test_mesage(self):
         '''method that will be used to send dummy data to test server connection
         PLEASE DO NOT USE THIS IN PRODUCTION'''
-        content_count = {'fresca':0, 'delaware': 3}
+        content_count = {'fresca lata 355 ml':2, 'delaware punch lata 355 ml': 3}
         dt = datetime.now()
         timestamp = datetime.timestamp(dt)
         
@@ -58,7 +59,7 @@ class MessageUploader ():
         self.message["store_id"] = self.store_id
         self.message["content_count"] = content_count
         self.message["timestamp"] = str(timestamp)
-        self.upload_message(verbose=True)        
+        self.upload_message(verbose=True, time_range=(0,0.5))        
     
     def run_demo(self, verbose = False):
         for image_name in os.listdir(self.demo_images_dir):

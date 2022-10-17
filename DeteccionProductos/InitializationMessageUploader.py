@@ -4,6 +4,7 @@ import numpy as np
 import os
 from threading import Event
 import requests
+import json
 
 class InitializationMessageUploader():
     def __init__(self):        
@@ -25,6 +26,7 @@ class InitializationMessageUploader():
             'coca cola lata 355 ml']
         '''    
         self.soda_labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml']
+        self.store_id = ""
     
     def build_message(self, 
         store_name:str, 
@@ -36,7 +38,8 @@ class InitializationMessageUploader():
         store_address:str,
         store_curr_stock:dict, 
         store_min_stocks:dict,
-        store_max_stocks:dict):                
+        store_max_stocks:dict):      
+          
         self.message["store_name"] = store_name
         self.message["store_latitude"] = store_latitude
         self.message["store_longitude"] = store_longitude
@@ -48,17 +51,35 @@ class InitializationMessageUploader():
         self.message["store_min_stocks"] = store_min_stocks
         self.message["store_max_stocks"] = store_max_stocks
 
+    def build_data_file(self, verbose = False):
+        data = {"store_id" : self.store_id, "store_info" : self.message}
+        with open("store_data.json", 'w') as f:
+            json.dump(data, f)
+            if verbose:
+                print("Store information saved succesfully.")
+    
     def upload_message(self, verbose = False):
         res = requests.post(self.severs_handler_endpoint, json=self.message)
         if res.ok and verbose:
             print("data sended to server succesfully")
-            print(res.json())
-            # TODO: add response handling, server response should be store id assigned
-            print(self.message)
-
+        
+        self.store_id = str(res.json()["store_id"])
+        if verbose:
+            print (self.store_id)
+            
+    def build_return_test_message(self):
+        self.build_message(store_name = "as", 
+                           store_latitude = 1, 
+                           store_longitude= 1, 
+                           store_state = 1, 
+                           store_municipality = 1, 
+                           store_zip_code = 1, 
+                           store_address = 1, 
+                           store_curr_stock = {"a" : 1}, 
+                           store_min_stocks = {"a" : 1}, 
+                           store_max_stocks = {"a" : 1})
+    
     def upload_test_mesage(self):
-        '''method that will be used to send dummy data to test server connection
-        PLEASE DO NOT USE THIS IN PRODUCTION'''
         store_name = input("please write the NAME of the new sotre: ")
         store_latitude = float(input("please write the LATITUDE of the new sotre: "))
         store_longitude = float(input("please write the LONGITUDE of the new sotre: "))
@@ -77,10 +98,14 @@ class InitializationMessageUploader():
             current_stock[soda] = int(input("how many {s} are on the store right now: ".format(s=soda)))
             min_stocks[soda] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
             max_stocks[soda] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
-
         self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks)
         self.upload_message(verbose=True)
-            
+        
+    def run_comms_demo (self):
+        self.build_return_test_message()
+        self.upload_message(verbose = True)
+        self.build_data_file(verbose = True)
+        
 if __name__ == "__main__":
     uploader = InitializationMessageUploader()
-    uploader.upload_test_mesage()
+    uploader.run_comms_demo()

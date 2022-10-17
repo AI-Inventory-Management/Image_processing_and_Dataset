@@ -16,6 +16,9 @@ class MessageUploader ():
         self.severs_handler_endpoint = "http://192.168.195.106:7000/constant_messages"
         self.fridge = FridgeContentCounter()
     
+    def set_store_id(self, store_id):
+        self.store_id = store_id
+    
     def capture_image(self):
         camera = cv.VideoCapture(2)
         res, self.image = camera.read()
@@ -47,6 +50,7 @@ class MessageUploader ():
             print("data sended to server succesfully")
             print(res.json())
         print(self.message)
+        return(wait_time)
 
     def upload_test_mesage(self):
         '''method that will be used to send dummy data to test server connection

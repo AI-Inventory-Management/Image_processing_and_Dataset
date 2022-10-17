@@ -50,7 +50,27 @@ class InitializationMessageUploader():
         self.message["store_curr_stock"] = store_curr_stock
         self.message["store_min_stocks"] = store_min_stocks
         self.message["store_max_stocks"] = store_max_stocks
+        
+    def obtain_store_data(self):
+        store_name = input("please write the NAME of the new sotre: ")
+        store_latitude = float(input("please write the LATITUDE of the new sotre: "))
+        store_longitude = float(input("please write the LONGITUDE of the new sotre: "))
+        store_state = input("please write the STATE of the new sotre: ")
+        store_municipality = input("please write the MUNICIPALITY of the new sotre: ")
+        store_zip_code = int(input("please write the ZIP_CODE of the new sotre: "))
+        store_address = input("please write the ADDRESS of the new sotre: ")
 
+        print("Thanks, please input the store stock details")
+        current_stock = {}        
+        min_stocks = {}
+        max_stocks = {}
+        for soda in self.soda_labels:
+            print('')
+            print('-------------- {s} --------------'.format(s=soda))
+            current_stock[soda] = int(input("how many {s} are on the store right now: ".format(s=soda)))
+            min_stocks[soda] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
+            max_stocks[soda] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
+    
     def build_data_file(self, verbose = False):
         data = {"store_id" : self.store_id, "store_info" : self.message}
         with open("store_data.json", 'w') as f:

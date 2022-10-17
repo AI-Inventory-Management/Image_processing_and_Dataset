@@ -5,10 +5,10 @@ import json
 from threading import Event
 
 class RIICOMain ():
-    def __init__(self):
+    def __init__(self, wait_time = 1800):
         self.initial_uploader = IniMU()
         self.uploader = ContMU()
-        self.wait_time = 1800
+        self.wait_time = wait_time
         
     def send_initial(self, verbose = False):
         self.initial_uploader.obtain_store_data()
@@ -45,5 +45,5 @@ class RIICOMain ():
         self.run(verbose = True, time_range = (0, 0.1))
         
 if __name__ == '__main__':
-    main = RIICOMain()
+    main = RIICOMain(wait_time = 1800)
     main.run()            

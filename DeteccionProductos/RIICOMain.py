@@ -11,17 +11,20 @@ class RIICOMain ():
         self.wait_time = wait_time
         
     def send_initial(self, verbose = False):
-        self.initial_uploader.obtain_store_data()
-        self.initial_uploader.build_message()
-        self.initial_uploader.upload_message(verbose = verbose)
-        self.initial_uploader.build_data_file(verbose = verbose)
+        had_data = self.initial_uploader.obtain_store_data()
+        if had_data:
+            self.initial_uploader.upload_message(verbose = verbose)
+            self.initial_uploader.build_data_file(verbose = verbose)
+            if verbose:
+                print("First message sent.")
+        else:
+            if verbose:
+                print("First message already sent.")
         
-        if verbose:
-            print("First message sent.")
-    
     def update_store_info (self, verbose = False):
-        with open("store_data.json") as f:
+        with open("./data/store_data.json") as f:
             data = json.load(f)
+            f.close()
             store_id = data["store_id"]
             
             self.uploader.set_store_id(store_id = store_id)
@@ -36,6 +39,11 @@ class RIICOMain ():
         message_wait = 0
         
         while True:
+            if verbose :
+                print("Message wait: " + str(message_wait))
+                print("Image capture wait: " + str((self.wait_time - message_wait)/60) + "min")
+                print("Total wait: " + str(self.wait_time))
+                
             Event().wait(self.wait_time - message_wait)
             self.uploader.capture_image()
             self.uploader.build_message()
@@ -45,5 +53,5 @@ class RIICOMain ():
         self.run(verbose = True, time_range = (0, 0.1))
         
 if __name__ == '__main__':
-    main = RIICOMain(wait_time = 1800)
-    main.run()            
+    main = RIICOMain(wait_time = 30)
+    main.run_demo()            

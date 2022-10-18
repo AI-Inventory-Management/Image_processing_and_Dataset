@@ -9,7 +9,8 @@ class FridgeContentCounter():
     def __init__(self, model_path = './sodas_detector_prot', demo_images_dir = "../test3_images", labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml', 'fresca botella de plastico 600 ml', 'fuze tea durazno 600 ml', 'power ade mora azul botella de plastico 500 ml', 'delaware punch lata 355 ml', 'vacio', 'del valle durazno botella de vidrio 413 ml', 'sidral mundet botella de plastico 600 ml', 'coca cola botella de plastico 600 ml', 'power ade mora azul lata 453 ml', 'coca cola lata 355 ml', 'producto no oficial'], ean = ["7501055365470", "7501055363162", "7501055303786", "7501055317875", "7501055329267", "7501055365609", "0", "3223905201", "7501055339983", "75007614", "7501055370986", "7501055361540", "-1"], alfa = 0.4, beta = 0.6, thresh = 0.65):
         self.demo_images_dir = demo_images_dir
         self.labels = labels
-        self.prev_pred = np.ones((8, len(self.labels) - 1))
+        self.prev_pred = np.zeros((8, len(self.labels) - 1))
+        self.prev_pred[:, 6] = 1
         self.alfa = alfa
         self.beta = beta
         self.thresh = thresh

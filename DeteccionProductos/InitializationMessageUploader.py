@@ -10,6 +10,7 @@ class InitializationMessageUploader():
     def __init__(self):        
         self.message = {}
         self.severs_handler_endpoint = "http://192.168.195.106:7000/initaialization_messages"
+        self.ean = ["7501055365470", "7501055363162", "7501055303786", "7501055317875", "7501055329267", "7501055365609", "3223905201", "7501055339983", "75007614", "7501055370986", "7501055361540"]
         '''
         self.soda_labels = [
             'fresca lata 355 ml',
@@ -57,24 +58,28 @@ class InitializationMessageUploader():
                 data = json.load(f)
                 f.close()
                 if len(data) == 0:
-                    store_name = input("please write the NAME of the new sotre: ")
-                    store_latitude = float(input("please write the LATITUDE of the new sotre: "))
-                    store_longitude = float(input("please write the LONGITUDE of the new sotre: "))
-                    store_state = input("please write the STATE of the new sotre: ")
-                    store_municipality = input("please write the MUNICIPALITY of the new sotre: ")
-                    store_zip_code = int(input("please write the ZIP_CODE of the new sotre: "))
-                    store_address = input("please write the ADDRESS of the new sotre: ")
+                    store_name = input("please write the NAME of the new store: ")
+                    store_latitude = float(input("please write the LATITUDE of the new store: "))
+                    store_longitude = float(input("please write the LONGITUDE of the new store: "))
+                    store_state = input("please write the STATE of the new store: ")
+                    store_municipality = input("please write the MUNICIPALITY of the new store: ")
+                    store_zip_code = int(input("please write the ZIP_CODE of the new store: "))
+                    store_address = input("please write the ADDRESS of the new store: ")
             
                     print("Thanks, please input the store stock details")
                     current_stock = {}        
                     min_stocks = {}
                     max_stocks = {}
+                    
+                    i = 0
                     for soda in self.soda_labels:
                         print('')
                         print('-------------- {s} --------------'.format(s=soda))
-                        current_stock[soda] = int(input("how many {s} are on the store right now: ".format(s=soda)))
-                        min_stocks[soda] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
-                        max_stocks[soda] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
+                        current_stock[self.ean[i]] = int(input("how many {s} are on the store right now: ".format(s=soda)))
+                        min_stocks[self.ean[i]] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
+                        max_stocks[self.ean[i]] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
+                        
+                        i += 1
                 else:
                     return False
                     
@@ -82,23 +87,26 @@ class InitializationMessageUploader():
             return True
         except:
             store_name = input("please write the NAME of the new store: ")
-            store_latitude = float(input("please write the LATITUDE of the new sotre: "))
-            store_longitude = float(input("please write the LONGITUDE of the new sotre: "))
-            store_state = input("please write the STATE of the new sotre: ")
-            store_municipality = input("please write the MUNICIPALITY of the new sotre: ")
-            store_zip_code = int(input("please write the ZIP_CODE of the new sotre: "))
-            store_address = input("please write the ADDRESS of the new sotre: ")
+            store_latitude = float(input("please write the LATITUDE of the new store: "))
+            store_longitude = float(input("please write the LONGITUDE of the new store: "))
+            store_state = input("please write the STATE of the new store: ")
+            store_municipality = input("please write the MUNICIPALITY of the new store: ")
+            store_zip_code = int(input("please write the ZIP_CODE of the new store: "))
+            store_address = input("please write the ADDRESS of the new store: ")
     
             print("Thanks, please input the store stock details")
             current_stock = {}        
             min_stocks = {}
             max_stocks = {}
+            
+            i = 0
             for soda in self.soda_labels:
                 print('')
                 print('-------------- {s} --------------'.format(s=soda))
-                current_stock[soda] = int(input("how many {s} are on the store right nosw: ".format(s=soda)))
-                min_stocks[soda] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
-                max_stocks[soda] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
+                current_stock[self.ean[i]] = int(input("how many {s} are on the store right now: ".format(s=soda)))
+                min_stocks[self.ean[i]] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
+                max_stocks[self.ean[i]] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
+                i += 1
             
             self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks)
             return True
@@ -114,6 +122,9 @@ class InitializationMessageUploader():
     def upload_message(self, verbose = False):
         res = requests.post(self.severs_handler_endpoint, json=self.message)
         if res.ok and verbose:
+            print("Message sent:")
+            print(self.message)
+            print()
             print("data sended to server succesfully")
         
         self.store_id = str(res.json()["store_id"])
@@ -145,12 +156,15 @@ class InitializationMessageUploader():
         current_stock = {}        
         min_stocks = {}
         max_stocks = {}
+        
+        i = 0
         for soda in self.soda_labels:
             print('')
             print('-------------- {s} --------------'.format(s=soda))
-            current_stock[soda] = int(input("how many {s} are on the store right now: ".format(s=soda)))
-            min_stocks[soda] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
-            max_stocks[soda] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
+            current_stock[self.ean[i]] = int(input("how many {s} are on the store right now: ".format(s=soda)))
+            min_stocks[self.ean[i]] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
+            max_stocks[self.ean[i]] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
+            i += 1
         self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks)
         self.upload_message(verbose=True)
         

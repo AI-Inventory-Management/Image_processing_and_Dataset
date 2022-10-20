@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 import cv2 as cv
 import numpy as np
 import os
@@ -30,9 +31,8 @@ class MessageUploader ():
         return np.random.randint(min_time, max_time)
     
     def build_message(self):
-        content_count = self.fridge.get_content_count(self.image)
-        dt = datetime.now()
-        timestamp = datetime.timestamp(dt)
+        content_count = self.fridge.get_content_count(self.image)        
+        timestamp = int(time.time())
         
         #self.message = "TEMP_MESSAGE\n" + self.store_id + "\n" + str(content_count) + "\n" + str(timestamp)
         self.message["store_id"] = self.store_id

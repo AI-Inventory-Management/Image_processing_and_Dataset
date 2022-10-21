@@ -6,7 +6,7 @@ import tensorflow.keras.models as models
 from FridgeContentDetector import *
 
 class FridgeContentCounter():
-    def __init__(self, model_path = './sodas_detector_prot', 
+    def __init__(self, model_path = './models/sodas_detector_prot', 
                  demo_images_dir = "../test3_images", 
                  labels = ['fresca lata 355 ml', 
                            'sidral mundet lata 355 ml', 

@@ -9,7 +9,7 @@ import json
 class InitializationMessageUploader():
     def __init__(self):        
         self.message = {}
-        self.severs_handler_endpoint = "http://192.168.195.106:7000/initaialization_messages"
+        self.severs_handler_endpoint = "http://137.184.75.33:7000/initaialization_messages"
         self.ean = ["7501055365470", "7501055363162", "7501055303786", "7501055317875", "7501055329267", "7501055365609", "3223905201", "7501055339983", "75007614", "7501055370986", "7501055361540"]
         '''
         self.soda_labels = [

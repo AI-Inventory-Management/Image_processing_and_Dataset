@@ -14,7 +14,7 @@ class MessageUploader ():
         self.image = image
         self.demo_images_dir = demo_images_dir
         self.message = {}
-        self.severs_handler_endpoint = "http://192.168.195.106:7000/constant_messages"
+        self.severs_handler_endpoint = "http://137.184.75.33:7000/constant_messages"
         self.fridge = FridgeContentCounter()
     
     def set_store_id(self, store_id):
@@ -22,6 +22,7 @@ class MessageUploader ():
     
     def capture_image(self):
         camera = cv.VideoCapture(2)
+        #camera = cv.VideoCapture(0)      Uncomment this for testing on a personal computer
         res, self.image = camera.read()
     
     def randomize_upload_time(self, time_range = (0, 30)):

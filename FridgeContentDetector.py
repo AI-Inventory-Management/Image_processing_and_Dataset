@@ -182,8 +182,11 @@ class FridgeContentDetector():
                 cv.waitKey(0)
     
     def generate_dataset(self):
-        df = pd.read_excel('./sodas_dataset_raw/session classes.xlsx')
-        df.drop('Session number', axis=1, inplace=True)
+        df = pd.read_excel('./sodas_dataset_raw/session classes update.xlsx')
+        df.drop('Session number', axis=1, inplace=True)        
+        df_previously_saved_photos = pd.read_excel('./sodas_dataset_raw/session classes.xlsx')                        
+        saved_sessions = list(df_previously_saved_photos.index)
+        df.drop(index=saved_sessions, inplace=True)                        
         labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml', 'fresca botella de plastico 600 ml', 'fuze tea durazno 600 ml', 'power ade mora azul botella de plastico 500 ml', 'delaware punch lata 355 ml', 'vacio', 'del valle durazno botella de vidrio 413 ml', 'sidral mundet botella de plastico 600 ml', 'coca cola botella de plastico 600 ml', 'power ade mora azul lata 453 ml', 'coca cola lata 355 ml']
         num_to_label = {}
         label_to_num = {}
@@ -206,8 +209,7 @@ class FridgeContentDetector():
                             cv.imwrite(saving_path, content_cells[i])     
                     except FridgeNotFoundException:
                         print("fridge not found on image: {session_dir} {im_name}".format(session_dir = session_dir, im_name=image_name))
-                    cv.waitKey(0)
-                    
+                    cv.waitKey(0)                
         
         
 

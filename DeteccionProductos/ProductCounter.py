@@ -13,6 +13,7 @@ class FridgeContentCounter():
         self.demo_images_dir = demo_images_dir
         self.labels = []
         self.ean = []
+        self.content_detector = FridgeContentDetector()
         
         with open("./data/product_data.json", 'r') as f:
             data = json.load(f)
@@ -73,9 +74,9 @@ class FridgeContentCounter():
         cell = cv.putText(cell, cel_cnt, org3, font, fontScale, color, thickness)
         cv.imshow("CellPred", cell)
         cv.waitKey(0)
+        cv.destroyAllWindows()
     
     def get_content_count(self, raw_image, output_shape=(150,420), verbose = False):
-        fridge_content_detector = FridgeContentDetector()
         
         content_count = {}
         for org_label in self.labels:
@@ -91,13 +92,15 @@ class FridgeContentCounter():
                 ean_count[num] = 0
 
         try:
-            content_cells = fridge_content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, output_shape)
+            content_cells = self.content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, output_shape)
             
+            print("Fridge found")
             
             for cell in content_cells:
                 # gray_cell = cv.cvtColor(cell, cv.COLOR_BGR2GRAY)
-                cell = cell/255
+                cell = cell/255.0
                 expanded_cell = np.expand_dims(cell, axis = 0)
+                # print(expanded_cell.shape)
                 # expanded_cell = np.expand_dims(expanded_cell, axis = 3)
                 pred = self.model.predict(expanded_cell)[0]
                 
@@ -121,7 +124,7 @@ class FridgeContentCounter():
                     label = self.labels[int(np.where(sum_preds == max_pred)[0][0])]
                 
                 
-                if verbose:
+                if verbose:                    
                     self.show_count_result(label, max_pred, cell_num, cell)
                 cell_num += 1
                 
@@ -130,6 +133,9 @@ class FridgeContentCounter():
                 
         except FridgeNotFoundException:
             
+            if verbose:
+                print("Fridge not found")
+
             for i in range(8):
                 sum_preds = self.prev_pred[i]
 
@@ -147,6 +153,9 @@ class FridgeContentCounter():
         for content in content_count:
             ean_count[self.ean[i]] = content_count[content]
             i += 1
+
+        if verbose:
+            print(content_count)
 
         return ean_count
     
@@ -177,17 +186,24 @@ class FridgeContentCounter():
         self.model = models.load_model(self.model_path)
         
         if verbose:
-            print("Loaded:")
-            print("lablels")
+            print()
+            print("Loaded.................................")
+            print("lablels:")
             print(self.labels)
-            print()
-            print("eans")
+            print("eans:")
             print(self.ean)
-            print()
             print("Model")
             print(self.model_path)
-            print()
+            print("alfa:")
+            print(self.alfa)
+            print("beta")
+            print(self.beta)
+            print("thresh")
+            print(self.thresh)
             print("Fridge software updated")
+            print()
+            print("Last saved predictions:")
+            print(self.prev_pred)
     
     def run_demo(self, verbose = True):
         for image_name in os.listdir(self.demo_images_dir):

@@ -9,29 +9,31 @@ import requests
 from ProductCounter import FridgeContentCounter
 
 class MessageUploader ():
-    def __init__(self, server, image = [], store_id = "1",  demo_images_dir = "../test5_images"):
+    def __init__(self, server = "http://192.168.195.106:7000", image = [], store_id = "1",  demo_images_dir = "../test5_images"):
         self.store_id = store_id
         self.image = image
         self.demo_images_dir = demo_images_dir
         self.message = {}
         self.severs_handler_endpoint = server + "/constant_messages"
         self.fridge = FridgeContentCounter()
+        self.camera = None
     
     def set_store_id(self, store_id):
         self.store_id = store_id
     
     def capture_image(self):
-        camera = cv.VideoCapture(2)
+        self.camera = cv.VideoCapture(1)
         #camera = cv.VideoCapture(0)      Uncomment this for testing on a personal computer
-        res, self.image = camera.read()
+        res, self.image = self.camera.read()
+        return self.image
     
     def randomize_upload_time(self, time_range = (0, 30)):
         min_time = time_range[0] * 60
         max_time = time_range[1] * 60
         return np.random.randint(min_time, max_time)
     
-    def build_message(self):
-        content_count = self.fridge.get_content_count(self.image)        
+    def build_message(self, verbose =False):
+        content_count = self.fridge.get_content_count(self.image, verbose=verbose)        
         timestamp = int(time.time())
         
         #self.message = "TEMP_MESSAGE\n" + self.store_id + "\n" + str(content_count) + "\n" + str(timestamp)

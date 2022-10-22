@@ -2,7 +2,7 @@ import requests
 import json
 
 class InitializationMessageUploader():
-    def __init__(self, server):        
+    def __init__(self, server = "http://192.168.195.106:7000"):        
         self.message = {}
         self.fridge_info = {}
         self.severs_handler_endpoint = server + "/initaialization_messages"

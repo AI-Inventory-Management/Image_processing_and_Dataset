@@ -1,6 +1,7 @@
 from InitializationMessageUploader import InitializationMessageUploader as IniMU
 from MessageUploader import MessageUploader as ContMU
 
+import cv2 as cv
 import json
 from threading import Event
 
@@ -53,11 +54,17 @@ class RIICOMain ():
                 print("Image capture wait: " + str((self.wait_time - message_wait)/60) + " min")
                 print("Total wait: " + str(self.wait_time))
                 print("Current epoch: " + str(epoch))
-                print("Cycles to update: " +str(update_cycles - epoch))
+                print("Cycles till update: " +str(update_cycles - epoch))
                 
             Event().wait(self.wait_time - message_wait)
-            self.uploader.capture_image()
-            self.uploader.build_message()
+            img = self.uploader.capture_image()
+
+            if verbose:
+                cv.imshow("Catura", img)
+                cv.waitKey(0)
+                cv.destroyAllWindows()
+
+            self.uploader.build_message(verbose = verbose)
             message_wait = self.uploader.upload_message(time_range = time_range, verbose = verbose)
             
             epoch += 1
@@ -69,5 +76,5 @@ class RIICOMain ():
         self.run(verbose = True, time_range = (0, 0.1), update_cycles = 5)
         
 if __name__ == '__main__':
-    main = RIICOMain(wait_time = 30)
+    main = RIICOMain(wait_time = 5)
     main.run_demo()            

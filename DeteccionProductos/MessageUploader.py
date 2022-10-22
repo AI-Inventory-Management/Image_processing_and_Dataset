@@ -9,12 +9,12 @@ import requests
 from ProductCounter import FridgeContentCounter
 
 class MessageUploader ():
-    def __init__(self, image = [], store_id = "1",  demo_images_dir = "../test5_images"):
-        self.store_id = "41"
+    def __init__(self, server, image = [], store_id = "1",  demo_images_dir = "../test5_images"):
+        self.store_id = store_id
         self.image = image
         self.demo_images_dir = demo_images_dir
         self.message = {}
-        self.severs_handler_endpoint = "http://137.184.75.33:7000/constant_messages"
+        self.severs_handler_endpoint = server + "/constant_messages"
         self.fridge = FridgeContentCounter()
     
     def set_store_id(self, store_id):
@@ -28,7 +28,6 @@ class MessageUploader ():
     def randomize_upload_time(self, time_range = (0, 30)):
         min_time = time_range[0] * 60
         max_time = time_range[1] * 60
-        
         return np.random.randint(min_time, max_time)
     
     def build_message(self):
@@ -49,9 +48,14 @@ class MessageUploader ():
         res = requests.post(self.severs_handler_endpoint, json=self.message)
         if res.ok:
             print("data sended to server succesfully")
-            print(res.json())
+            # print(res.json())
         print(self.message)
         return(wait_time)
+    
+    def update_software(self, verbose = False):
+        self.fridge.update_software(verbose = verbose)
+        if verbose:
+            print("Uploader software updated")
 
     def upload_test_mesage(self):
         '''method that will be used to send dummy data to test server connection
@@ -97,5 +101,5 @@ class MessageUploader ():
             
 if __name__ == "__main__":
     uploader = MessageUploader()
-    #uploader.run_camera_demo()
-    uploader.upload_test_mesage()
+    uploader.run_camera_demo()
+    #uploader.upload_test_mesage()

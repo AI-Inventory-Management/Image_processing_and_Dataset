@@ -2,51 +2,60 @@ import numpy as np
 import cv2 as cv
 import os
 import tensorflow.keras.models as models
+import tensorflow.keras.backend as backend
+import json
 
 from FridgeContentDetector import *
 
 class FridgeContentCounter():
-    def __init__(self, model_path = './models/sodas_detector_prot', 
-                 demo_images_dir = "../test3_images", 
-                 labels = ['fresca lata 355 ml', 
-                           'sidral mundet lata 355 ml', 
-                           'fresca botella de plastico 600 ml', 
-                           'fuze tea durazno 600 ml', 
-                           'power ade mora azul botella de plastico 500 ml', 
-                           'delaware punch lata 355 ml', 
-                           'vacio', 
-                           'del valle durazno botella de vidrio 413 ml', 
-                           'sidral mundet botella de plastico 600 ml', 
-                           'coca cola botella de plastico 600 ml', 
-                           'power ade mora azul lata 453 ml', 
-                           'coca cola lata 355 ml', 
-                           'producto no oficial'], 
-                 ean = ["7501055365470", 
-                        "7501055363162", 
-                        "7501055303786", 
-                        "7501055317875", 
-                        "7501055329267", 
-                        "7501055365609", 
-                        "3223905201", 
-                        "7501055339983", 
-                        "75007614", 
-                        "7501055370986", 
-                        "7501055361540", 
-                        "-1"], 
-                 alfa = 0.4, 
-                 beta = 0.6, 
-                 thresh = 0.65):
+    def __init__(self, demo_images_dir = "../test3_images"):
         
         self.demo_images_dir = demo_images_dir
-        self.labels = labels
+        self.labels = []
+        self.ean = []
+        
+        with open("./data/product_data.json", 'r') as f:
+            data = json.load(f)
+            f.close()
+            self.labels = data["labels"]
+            self.ean = data["eans"]
+        
         self.prev_pred = np.zeros((8, len(self.labels) - 1))
         self.prev_pred[:, 6] = 1
-        self.alfa = alfa
-        self.beta = beta
-        self.thresh = thresh
-        self.model = models.load_model(model_path)
-        self.unlable = {}
-        self.ean = ean
+        
+        with open("./data/product_data.json", 'r') as f:
+            data = json.load(f)
+            f.close()
+        
+        with open("./data/product_data.json", 'w') as f:
+            data["prev_pred"] = self.prev_pred.tolist()
+            json.dump(data, f)
+        
+        self.model_path = ""
+        self.alfa = 0.5
+        self.beta = 0.5
+        self.thresh = 1.0
+        
+        with open("./data/model_data.json", 'r') as f:
+            data = json.load(f)
+            f.close
+            self.model_path = data["model_path"]
+            self.alfa = data["alfa"]
+            self.beta = data["beta"]
+            self.thresh = data["thresh"]
+        
+        self.model = models.load_model(self.model_path)
+        
+        self.fridge_cols = 4
+        self.fridge_rows = 2
+        
+        try:
+            with open("./data/fridge_data.json", 'r') as f:
+               data = json.load(f)
+               f.close()
+               self.fridge_cols, self.fridge_rows = data["fridge_dimensions"]
+        except:
+            pass
     
     def show_count_result(self, label, max_pred, cell_num, cell):
         pred_lbl = label 
@@ -65,7 +74,7 @@ class FridgeContentCounter():
         cv.imshow("CellPred", cell)
         cv.waitKey(0)
     
-    def get_content_count(self, raw_image, fridge_rows_count = 2, fridge_columns_count = 4, output_shape=(150,420), verbose = False):
+    def get_content_count(self, raw_image, output_shape=(150,420), verbose = False):
         fridge_content_detector = FridgeContentDetector()
         
         content_count = {}
@@ -82,7 +91,7 @@ class FridgeContentCounter():
                 ean_count[num] = 0
 
         try:
-            content_cells = fridge_content_detector.get_fridge_cells(raw_image, fridge_rows_count, fridge_columns_count, output_shape)
+            content_cells = fridge_content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, output_shape)
             
             
             for cell in content_cells:
@@ -95,6 +104,14 @@ class FridgeContentCounter():
                 sum_preds = self.alfa * self.prev_pred[cell_num - 1] + self.beta * pred
                 
                 self.prev_pred[cell_num - 1] = pred
+                
+                with open("./data/product_data.json", 'r') as f:
+                    data = json.load(f)
+                    f.close()
+                
+                with open("./data/product_data.json", 'w') as f:
+                    data["prev_pred"] = self.prev_pred.tolist()
+                    json.dump(data, f)
                 
                 max_pred = np.amax(sum_preds)
                 
@@ -132,7 +149,46 @@ class FridgeContentCounter():
             i += 1
 
         return ean_count
+    
+    def update_software(self, verbose = False):
+        with open("./data/product_data.json", 'r') as f:
+            data = json.load(f)
+            f.close()
+            self.labels = data["labels"]
+            self.ean = data["eans"]
+        
+        with open("./data/product_data.json", 'r') as f:
+            data = json.load(f)
+            f.close()
+        
+        with open("./data/product_data.json", 'w') as f:
+            data["prev_pred"] = self.prev_pred.tolist()
+            json.dump(data, f)
             
+        with open("./data/model_data.json", 'r') as f:
+            data = json.load(f)
+            f.close
+            self.model_path = data["model_path"]
+            self.alfa = data["alfa"]
+            self.beta = data["beta"]
+            self.thresh = data["thresh"]
+        
+        backend.clear_session()
+        self.model = models.load_model(self.model_path)
+        
+        if verbose:
+            print("Loaded:")
+            print("lablels")
+            print(self.labels)
+            print()
+            print("eans")
+            print(self.ean)
+            print()
+            print("Model")
+            print(self.model_path)
+            print()
+            print("Fridge software updated")
+    
     def run_demo(self, verbose = True):
         for image_name in os.listdir(self.demo_images_dir):
             if image_name.endswith(".jpg"):

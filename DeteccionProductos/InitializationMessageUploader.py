@@ -1,32 +1,25 @@
-from datetime import datetime
-import cv2 as cv
-import numpy as np
-import os
-from threading import Event
 import requests
 import json
 
 class InitializationMessageUploader():
-    def __init__(self):        
+    def __init__(self, server):        
         self.message = {}
-        self.severs_handler_endpoint = "http://137.184.75.33:7000/initaialization_messages"
-        self.ean = ["7501055365470", "7501055363162", "7501055303786", "7501055317875", "7501055329267", "7501055365609", "3223905201", "7501055339983", "75007614", "7501055370986", "7501055361540"]
-        '''
-        self.soda_labels = [
-            'fresca lata 355 ml',
-            'sidral mundet lata 355 ml',
-            'fresca botella de plastico 600 ml',
-            'fuze tea durazno 600 ml',
-            'power ade mora azul botella de plastico 500 ml',
-            'delaware punch lata 355 ml',
-            'vacio',
-            'del valle durazno botella de vidrio 413 ml',
-            'sidral mundet botella de plastico 600 ml',
-            'coca cola botella de plastico 600 ml',
-            'power ade mora azul lata 453 ml',
-            'coca cola lata 355 ml']
-        '''    
-        self.soda_labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml']
+        self.fridge_info = {}
+        self.severs_handler_endpoint = server + "/initaialization_messages"
+        self.ean = []
+        self.soda_labels = []
+        
+        with open("./data/product_data.json", 'r') as f:
+            data = json.load(f)
+            f.close()
+            self.ean = data["eans"]
+            self.ean.remove("-1")
+            self.soda_labels = data["labels"]
+            self.soda_labels
+            self.soda_labels.remove("vacio")
+            self.soda_labels.remove("producto no oficial")
+            
+        # self.soda_labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml']
         self.store_id = ""
     
     def build_message(self, 
@@ -39,7 +32,9 @@ class InitializationMessageUploader():
         store_address:str,
         store_curr_stock:dict, 
         store_min_stocks:dict,
-        store_max_stocks:dict):      
+        store_max_stocks:dict,
+        fridge_cols:int,
+        fridge_rows:int):      
           
         self.message["store_name"] = store_name
         self.message["store_latitude"] = store_latitude
@@ -51,6 +46,8 @@ class InitializationMessageUploader():
         self.message["store_curr_stock"] = store_curr_stock
         self.message["store_min_stocks"] = store_min_stocks
         self.message["store_max_stocks"] = store_max_stocks
+        self.fridge_info["fridge_cols"] = fridge_cols
+        self.fridge_info["fridge_rows"] = fridge_rows
         
     def obtain_store_data(self):
         try:
@@ -80,10 +77,16 @@ class InitializationMessageUploader():
                         max_stocks[self.ean[i]] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
                         
                         i += 1
+                    
+                    print("Finally, input fridge info")
+                    fridge_cols = int(input("please write the NUMBER of columns in the fridge: "))
+                    fridge_rows = int(input("please write the NUMBER of rows in the fridge: "))
+                    
+                        
                 else:
                     return False
                     
-            self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks)
+            self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks, fridge_cols, fridge_rows)
             return True
         except:
             store_name = input("please write the NAME of the new store: ")
@@ -108,16 +111,28 @@ class InitializationMessageUploader():
                 max_stocks[self.ean[i]] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
                 i += 1
             
-            self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks)
+            print("Finally, input fridge info")
+            fridge_cols = int(input("please write the NUMBER of columns in the fridge: "))
+            fridge_rows = int(input("please write the NUMBER of rows in the fridge: "))
+            
+            
+            self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks, fridge_cols, fridge_rows)
             return True
         
     def build_data_file(self, verbose = False):
         data = {"store_id" : self.store_id, "store_info" : self.message}
         with open("./data/store_data.json", 'w') as f:
             json.dump(data, f)
-            f.close
+            f.close()
             if verbose:
                 print("Store information saved succesfully.")
+            
+        fridge_data = {"fridge_dimensions" : (self.fridge_info["fridge_cols"], self.fridge_info["fridge_rows"])}
+        with open("./data/fridge_data.json", 'w') as ff:
+            json.dump(fridge_data, ff)
+            ff.close()
+            if verbose:
+                print("Fridge information saved succesfully")
     
     def upload_message(self, verbose = False):
         res = requests.post(self.severs_handler_endpoint, json=self.message)
@@ -131,6 +146,20 @@ class InitializationMessageUploader():
         if verbose:
             print (self.store_id)
             
+    def update_software(self, verbose = False):
+        with open("./data/product_data.json", 'r') as f:
+            data = json.load(f)
+            f.close()
+            self.ean = data["eans"]
+            self.ean.remove("-1")
+            self.soda_labels = data["labels"]
+            self.soda_labels
+            self.soda_labels.remove("vacio")
+            self.soda_labels.remove("producto no oficial")
+            
+        if verbose:
+            print("Initializer software updated")
+            
     def build_return_test_message(self):
         self.build_message(store_name = "as", 
                            store_latitude = 1, 
@@ -139,9 +168,11 @@ class InitializationMessageUploader():
                            store_municipality = 1, 
                            store_zip_code = 1, 
                            store_address = 1, 
-                           store_curr_stock = {"a" : 1}, 
-                           store_min_stocks = {"a" : 1}, 
-                           store_max_stocks = {"a" : 1})
+                           store_curr_stock = {"7501055365470" : 1}, 
+                           store_min_stocks = {"7501055365470" : 1}, 
+                           store_max_stocks = {"7501055365470" : 1},
+                           fridge_cols = 4,
+                           fridge_rows = 2)
     
     def upload_test_mesage(self):
         store_name = input("please write the NAME of the new store: ")
@@ -165,7 +196,12 @@ class InitializationMessageUploader():
             min_stocks[self.ean[i]] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
             max_stocks[self.ean[i]] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
             i += 1
-        self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks)
+            
+        print("Finally, input fridge info")
+        fridge_cols = int(input("please write the NUMBER of columns in the fridge: "))
+        fridge_rows = int(input("please write the NUMBER of rows in the fridge: "))
+        
+        self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks, fridge_cols, fridge_rows)
         self.upload_message(verbose=True)
         
     def run_comms_demo (self):

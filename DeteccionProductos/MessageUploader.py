@@ -7,6 +7,7 @@ from threading import Event
 import requests
 
 from ProductCounter import FridgeContentCounter
+from Encrypter import Encrypter
 
 class MessageUploader ():
     def __init__(self, server = "http://192.168.195.106:7000", image = [], store_id = "1",  demo_images_dir = "../test5_images"):
@@ -17,6 +18,7 @@ class MessageUploader ():
         self.severs_handler_endpoint = server + "/constant_messages"
         self.fridge = FridgeContentCounter()
         self.camera = None
+        self.encrypter = Encrypter()
     
     def set_store_id(self, store_id):
         self.store_id = store_id
@@ -43,7 +45,14 @@ class MessageUploader ():
         
         if verbose:
             print(self.message)
-
+            print("Encrypting Message")
+        
+        self.message = self.encrypter.encrypt(self.message, verbose)
+        
+        if verbose:
+            print("Encrypted")
+            print(self.message)
+        
     def upload_message(self, time_range = (0, 30), verbose = False):
         wait_time = self.randomize_upload_time(time_range)
         if verbose:

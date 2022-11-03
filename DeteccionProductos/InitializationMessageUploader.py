@@ -1,5 +1,8 @@
 import requests
 import json
+from datetime import datetime
+import time
+from Encrypter import Encrypter
 
 class InitializationMessageUploader():
     def __init__(self, server = "http://192.168.195.106:7000"):        
@@ -8,6 +11,7 @@ class InitializationMessageUploader():
         self.severs_handler_endpoint = server + "/initaialization_messages"
         self.ean = []
         self.soda_labels = []
+        self.encrypter = Encrypter()
         
         with open("./data/product_data.json", 'r') as f:
             data = json.load(f)
@@ -34,7 +38,8 @@ class InitializationMessageUploader():
         store_min_stocks:dict,
         store_max_stocks:dict,
         fridge_cols:int,
-        fridge_rows:int):      
+        fridge_rows:int, 
+        verbose = False):      
           
         self.message["store_name"] = store_name
         self.message["store_latitude"] = store_latitude
@@ -48,6 +53,19 @@ class InitializationMessageUploader():
         self.message["store_max_stocks"] = store_max_stocks
         self.fridge_info["fridge_cols"] = fridge_cols
         self.fridge_info["fridge_rows"] = fridge_rows
+        
+        timestamp = int(time.time())
+        self.message["timestamp"] = str(timestamp)
+        
+        if verbose:
+            print("Message")
+            print(self.message)
+        
+        self.message = self.encrypter.encrypt(self.message)
+        
+        if verbose:
+            print("Message encrypted")
+            print(self.message)
         
     def obtain_store_data(self):
         try:
@@ -160,7 +178,7 @@ class InitializationMessageUploader():
         if verbose:
             print("Initializer software updated")
             
-    def build_return_test_message(self):
+    def build_return_test_message(self, verbose = False):
         self.build_message(store_name = "as", 
                            store_latitude = 1, 
                            store_longitude= 1, 
@@ -172,7 +190,8 @@ class InitializationMessageUploader():
                            store_min_stocks = {"7501055365470" : 1}, 
                            store_max_stocks = {"7501055365470" : 1},
                            fridge_cols = 4,
-                           fridge_rows = 2)
+                           fridge_rows = 2, 
+                           verbose = verbose)
     
     def upload_test_mesage(self):
         store_name = input("please write the NAME of the new store: ")
@@ -205,7 +224,7 @@ class InitializationMessageUploader():
         self.upload_message(verbose=True)
         
     def run_comms_demo (self):
-        self.build_return_test_message()
+        self.build_return_test_message(verbose = True)
         self.upload_message(verbose = True)
         self.build_data_file(verbose = True)
         

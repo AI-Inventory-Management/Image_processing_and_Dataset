@@ -22,8 +22,8 @@ class MessageUploader ():
         self.store_id = store_id
     
     def capture_image(self):
-        self.camera = cv.VideoCapture(1)
-        #camera = cv.VideoCapture(0)      Uncomment this for testing on a personal computer
+        # self.camera = cv.VideoCapture(1)
+        self.camera = cv.VideoCapture(0)     # Uncomment this for testing on a personal computer
         res, self.image = self.camera.read()
         return self.image
     
@@ -32,14 +32,17 @@ class MessageUploader ():
         max_time = time_range[1] * 60
         return np.random.randint(min_time, max_time)
     
-    def build_message(self, verbose =False):
+    def build_message(self, verbose = False):
         content_count = self.fridge.get_content_count(self.image, verbose=verbose)        
         timestamp = int(time.time())
         
         #self.message = "TEMP_MESSAGE\n" + self.store_id + "\n" + str(content_count) + "\n" + str(timestamp)
         self.message["store_id"] = self.store_id
         self.message["content_count"] = content_count
-        self.message["timestamp"] = str(timestamp)        
+        self.message["timestamp"] = str(timestamp)       
+        
+        if verbose:
+            print(self.message)
 
     def upload_message(self, time_range = (0, 30), verbose = False):
         wait_time = self.randomize_upload_time(time_range)
@@ -92,7 +95,7 @@ class MessageUploader ():
     def run_camera_demo(self):
         while True:
             self.capture_image()
-            self.build_message()
+            self.build_message(verbose = True)
             self.upload_message(time_range = (0,0.1), verbose = True)
             cv.imshow("Foto", self.image)
             pressed_key = cv.waitKey(0)

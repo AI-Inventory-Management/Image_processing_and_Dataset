@@ -27,6 +27,7 @@ class MessageUploader ():
         # self.camera = cv.VideoCapture(1)
         self.camera = cv.VideoCapture(0)     # Uncomment this for testing on a personal computer
         res, self.image = self.camera.read()
+        self.camera.release()
         return self.image
     
     def randomize_upload_time(self, time_range = (0, 30)):
@@ -38,16 +39,16 @@ class MessageUploader ():
         content_count = self.fridge.get_content_count(self.image, verbose=verbose)        
         timestamp = int(time.time())
         
+        message = {}
         #self.message = "TEMP_MESSAGE\n" + self.store_id + "\n" + str(content_count) + "\n" + str(timestamp)
-        self.message["store_id"] = self.store_id
-        self.message["content_count"] = content_count
-        self.message["timestamp"] = str(timestamp)       
+        message["store_id"] = self.store_id
+        message["content_count"] = content_count
+        message["timestamp"] = str(timestamp)       
         
         if verbose:
-            print(self.message)
-            print("Encrypting Message")
-        
-        self.message = self.encrypter.encrypt(self.message, verbose)
+            print(message)
+
+        self.message = self.encrypter.encrypt(message, verbose)
         
         if verbose:
             print("Encrypted")

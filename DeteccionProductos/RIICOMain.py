@@ -7,7 +7,7 @@ from threading import Event
 
 class RIICOMain ():
     def __init__(self, wait_time = 1800):
-        self.server = "http://192.168.195.106:7000"
+        self.server = "http://192.168.180.182:7000"
         self.initial_uploader = IniMU(self.server)
         self.uploader = ContMU(self.server)
         self.wait_time = wait_time

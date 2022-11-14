@@ -1,6 +1,6 @@
 # hardware_back_end
 
-- The coda called vino_model.py runs the model converted with OpenVino.
+- The code called vino_model.py runs the model converted with OpenVino.
 - Command to convert keras model to openvino. <br>
 ```mo --saved_model_dir <SAVED_MODEL_DIRECTORY>```
 - Command to activate openvino ve. <br>

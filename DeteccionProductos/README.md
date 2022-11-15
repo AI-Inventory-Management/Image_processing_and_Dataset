@@ -1,4 +1,8 @@
 # hardware_back_end
 
-**notes for ourselves:**
-The form for store data will appear only if store_data.json is not found  
+- The code called vino_model.py runs the model converted with OpenVino.
+- Command to convert keras model to openvino. <br>
+```mo --saved_model_dir <SAVED_MODEL_DIRECTORY>```
+- Command to activate openvino virtual envionment. <br>
+```source openvino_env/bin/activate```<br>
+- You must use this command in the same folder of the virtual enviroment.

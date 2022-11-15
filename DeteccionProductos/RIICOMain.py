@@ -7,7 +7,7 @@ from threading import Event
 
 class RIICOMain ():
     def __init__(self, wait_time = 1800):
-        self.server = "http://192.168.180.182:7000"
+        self.server = "http://192.168.210.106:7000"
         self.initial_uploader = IniMU(self.server)
         self.uploader = ContMU(self.server)
         self.wait_time = wait_time
@@ -49,7 +49,7 @@ class RIICOMain ():
         message_wait = 0
         
         while True:
-            if verbose :
+            if verbose:
                 print("Message wait: " + str(message_wait))
                 print("Image capture wait: " + str((self.wait_time - message_wait)/60) + " min")
                 print("Total wait: " + str(self.wait_time))

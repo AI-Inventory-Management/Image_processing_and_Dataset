@@ -217,7 +217,7 @@ class FridgeContentDetector():
         
         for i in range(1,len(vertical_boundaries)):
             for j in range(1,len(horizontal_boundaries)):
-                cell = fridge_content[vertical_boundaries[i-1]:vertical_boundaries[i], horizontal_boundaries[j-1]:horizontal_boundaries[j]]
+                cell = fridge_content[vertical_boundaries[i-1]+10:vertical_boundaries[i]+10, horizontal_boundaries[j-1]:horizontal_boundaries[j]]
                 cell = cv.resize(cell, output_shape)
                 content_cells.append(cell)
 
@@ -263,7 +263,7 @@ class FridgeContentDetector():
                         for i in range(len(content_cells)):
                             saving_path = os.path.join(self.sodas_final_dataset_dir, str(label_to_num[session_labels[i]]), str(time.time()).replace(".", "_") + ".jpg" )
                             print(saving_path)
-                            #cv.imwrite(saving_path, content_cells[i])     
+                            cv.imwrite(saving_path, content_cells[i])     
                     except FridgeNotFoundException:
                         print("fridge not found on image: {session_dir} {im_name}".format(session_dir = session_dir, im_name=image_name))
                     cv.waitKey(0)
@@ -287,6 +287,6 @@ class FridgeContentDetector():
 if __name__ == "__main__":
     fridge_content_detector = FridgeContentDetector()
     #fridge_content_detector.run_demo()
-    fridge_content_detector.generate_segmented_fridge_dataset()
+    #fridge_content_detector.generate_segmented_fridge_dataset()
     
     

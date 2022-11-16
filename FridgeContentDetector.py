@@ -16,6 +16,7 @@ class FridgeContentDetector():
     def __init__(self) -> None:
         self.demo_images_dir = "./sodas_dataset_raw/session 1/"
         self.sodas_sessions_dir = "./sodas_dataset_raw/session {session_num}/"
+        self.sodas_sessions_dir_segmented = "./sodas_dataset_raw_segmented/session_{session_num}/"
         #self.sodas_final_dataset_dir = "./sodas_dataset/"
         self.sodas_final_dataset_dir = "./sodas_dataset_w_margin/"
 
@@ -84,20 +85,16 @@ class FridgeContentDetector():
         fridge_treshold_1 = cv.inRange(hsv, (160, 50, 50), (180, 255,255))
         fridge_treshold_2 = cv.inRange(hsv, (0, 50, 50), (10, 255,255))
         fridge_treshold = cv.bitwise_or(fridge_treshold_1, fridge_treshold_2)
-        #fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, opening_kernel)
-        #fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, opening_kernel)
+        fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, opening_kernel)
         fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_CLOSE, closing_kernel)
 
-        fridge_treshold = cv.resize(fridge_treshold, (int(fridge_treshold.shape[1]/2) , int(fridge_treshold.shape[0]/2)) )
-        cv.imshow("tresholded image no cnt", fridge_treshold)          
+        #cv.imshow("tresholded image no cnt", fridge_treshold)          
         contours, hierarchy = cv.findContours(fridge_treshold, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
-        print("len contours here is: {l}".format(l = len(contours)))
         contours, hierarchy = self.filter_coutours_by_area(contours, hierarchy, width*height*(1/10))
         if(len(contours)==0):
             raise FridgeNotFoundException()
         contours, hierarchy = self.filter_contours_to_only_inner(contours, hierarchy)
         if(len(contours)==0):
-            print("exeption on only ineer")
             raise FridgeNotFoundException()
         contours, hierarchy = self.sort_contours_by_area(contours, hierarchy)
 
@@ -109,6 +106,24 @@ class FridgeContentDetector():
         box = cv.boxPoints(min_area_rect)
         box = np.int0(box)            
         return box, min_area_rect
+
+    def segmentate_fridge(self, image):
+        ''' This function is supposed to have the code that binarizes the input image found on
+        find_frigde_content_box if that code is changed, please be sure to copy it to this function '''
+        height, width = image.shape[:2]
+        opening_kernel_size = int(min(width,height)*0.025)
+        closing_kernel_size = int(min(width,height)*0.01)
+        opening_kernel = np.ones((opening_kernel_size,opening_kernel_size),np.uint8)
+        closing_kernel = np.ones((closing_kernel_size,closing_kernel_size),np.uint8)
+
+        hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+        fridge_treshold_1 = cv.inRange(hsv, (160, 50, 50), (180, 255,255))
+        fridge_treshold_2 = cv.inRange(hsv, (0, 50, 50), (10, 255,255))
+        fridge_treshold = cv.bitwise_or(fridge_treshold_1, fridge_treshold_2)
+        fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, opening_kernel)
+        fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_CLOSE, closing_kernel)
+        
+        return fridge_treshold
 
     def sort_rectangle_cords(self, rectangle_cords):
         '''
@@ -148,6 +163,10 @@ class FridgeContentDetector():
         return (rotated_image, rotated_cords)
 
     def cluster_image(self, raw_image):
+        '''
+        Attempt to improve fridge detection using k means clustering to make the fridges
+        red color simpler (invariant to brightness and darkness)
+        '''
         hsv_image = cv.cvtColor(raw_image, cv.COLOR_BGR2HSV)
         gray_image = cv.cvtColor(raw_image, cv.COLOR_BGR2GRAY)
         h, s, v = cv.split(hsv_image)
@@ -178,7 +197,7 @@ class FridgeContentDetector():
 
     def get_fridge_content_image(self, raw_image):
         #new_raw_image = self.correct_image_brightness(raw_image)
-        raw_image_corrected = self.cluster_image(raw_image)
+        #raw_image_corrected = self.cluster_image(raw_image)
         content_rectangle_cords, content_rectangle = self.find_fridge_content_box(raw_image)
         content_rectangle_cords = self.sort_rectangle_cords(content_rectangle_cords)
         rotated_image, final_content_cords = self.rotate_fridge_content(raw_image, content_rectangle_cords, content_rectangle)
@@ -221,8 +240,8 @@ class FridgeContentDetector():
                 cv.waitKey(0)
     
     def generate_dataset(self):
-        #df = pd.read_excel('./sodas_dataset_raw/session classes.xlsx')
-        df = pd.read_excel('./sodas_dataset_raw/session classes w margin.xlsx')
+        df = pd.read_excel('./sodas_dataset_raw/session classes.xlsx')
+        #df = pd.read_excel('./sodas_dataset_raw/session classes w margin.xlsx')
         df.drop('Session number', axis=1, inplace=True)
         labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml', 'fresca botella de plastico 600 ml', 'fuze tea durazno 600 ml', 'power ade mora azul botella de plastico 500 ml', 'delaware punch lata 355 ml', 'vacio', 'del valle durazno botella de vidrio 413 ml', 'sidral mundet botella de plastico 600 ml', 'coca cola botella de plastico 600 ml', 'power ade mora azul lata 453 ml', 'coca cola lata 355 ml']
         num_to_label = {}
@@ -233,8 +252,8 @@ class FridgeContentDetector():
         
         for index, row in df.iterrows():
             session_labels = row.tolist()
-            #session_dir = self.sodas_sessions_dir.format(session_num=index+1)
-            session_dir = self.sodas_sessions_dir.format(session_num=index+52)
+            session_dir = self.sodas_sessions_dir.format(session_num=index+1)
+            #session_dir = self.sodas_sessions_dir.format(session_num=index+52)
             for image_name in os.listdir(session_dir):
                 if image_name.endswith(".jpg"):
                     image_dir = os.path.join(session_dir, image_name)
@@ -248,6 +267,19 @@ class FridgeContentDetector():
                     except FridgeNotFoundException:
                         print("fridge not found on image: {session_dir} {im_name}".format(session_dir = session_dir, im_name=image_name))
                     cv.waitKey(0)
+
+    def generate_segmented_fridge_dataset(self):
+        df = pd.read_excel('./sodas_dataset_raw/session classes.xlsx')
+        for index, row in df.iterrows():            
+            session_dir = self.sodas_sessions_dir.format(session_num=index+1)
+            session_dir_segmented = self.sodas_sessions_dir_segmented.format(session_num=index+1)
+            for image_name in os.listdir(session_dir):
+                if image_name.endswith(".jpg"):
+                    image_dir = os.path.join(session_dir, image_name)
+                    image = cv.imread(image_dir)
+                    segmented_image = self.segmentate_fridge(image)
+                    segmented_image_name = os.path.join(session_dir_segmented, str(time.time()).replace(".", "_") + ".jpg")
+                    cv.imwrite(segmented_image_name, segmented_image)
                     
         
         
@@ -255,6 +287,6 @@ class FridgeContentDetector():
 if __name__ == "__main__":
     fridge_content_detector = FridgeContentDetector()
     #fridge_content_detector.run_demo()
-    fridge_content_detector.generate_dataset()
+    fridge_content_detector.generate_segmented_fridge_dataset()
     
     

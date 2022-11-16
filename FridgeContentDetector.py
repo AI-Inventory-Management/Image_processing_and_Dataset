@@ -202,7 +202,7 @@ class FridgeContentDetector():
         content_rectangle_cords = self.sort_rectangle_cords(content_rectangle_cords)
         rotated_image, final_content_cords = self.rotate_fridge_content(raw_image, content_rectangle_cords, content_rectangle)
         #content_image = rotated_image[final_content_cords[0,1]:final_content_cords[3,1], final_content_cords[0,0]:final_content_cords[3,0]]
-        content_image = rotated_image[final_content_cords[0,1] +5 :final_content_cords[3,1] +5 , final_content_cords[0,0]:final_content_cords[3,0]]
+        content_image = rotated_image[final_content_cords[0,1] -30 :final_content_cords[3,1] -30 , final_content_cords[0,0]:final_content_cords[3,0]]
         
         content_image = cv.resize(content_image, (int(content_image.shape[1]/2) , int(content_image.shape[0]/2)) )
         cv.imshow("content image", content_image)
@@ -217,7 +217,7 @@ class FridgeContentDetector():
         
         for i in range(1,len(vertical_boundaries)):
             for j in range(1,len(horizontal_boundaries)):
-                cell = fridge_content[vertical_boundaries[i-1]+10:vertical_boundaries[i]+10, horizontal_boundaries[j-1]:horizontal_boundaries[j]]
+                cell = fridge_content[vertical_boundaries[i-1]:vertical_boundaries[i], horizontal_boundaries[j-1]:horizontal_boundaries[j]]
                 cell = cv.resize(cell, output_shape)
                 content_cells.append(cell)
 
@@ -288,5 +288,6 @@ if __name__ == "__main__":
     fridge_content_detector = FridgeContentDetector()
     #fridge_content_detector.run_demo()
     #fridge_content_detector.generate_segmented_fridge_dataset()
+    fridge_content_detector.generate_dataset()
     
     

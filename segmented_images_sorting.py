@@ -19,7 +19,7 @@ for i in range(1,83):
     num_candidate_images = get_num_images_in_files_list(segmented_image_names)
     
     paired_segmented_images = []
-    
+    index_in_session = 0
     for file_name in os.listdir(original_session_dir):                
         if file_name.endswith(".jpg"):  
             candidate_index = 0            
@@ -38,13 +38,15 @@ for i in range(1,83):
                 
                 cv.imshow("test", original_times_masked)
                 pressed_key = cv.waitKey(0)
-                print(pressed_key)
+                
                 if pressed_key == 0x79:
-                    # pressed key is 'y'
-                    cv.imwrite( os.path.join("./raw_and_segmented_") )                                        
+                    # pressed key is 'y'                    
+                    cv.imwrite( os.path.join("./raw_and_segmented_for_nn/original/", "s{session_num}_{photo_idx}.jpg".format(session_num=i, photo_idx=index_in_session) ),  np.uint8(original_image) )
+                    cv.imwrite( os.path.join("./raw_and_segmented_for_nn/segmented/", "s{session_num}_{photo_idx}.jpg".format(session_num=i, photo_idx=index_in_session) ),  np.uint8(candidate_mask*255.0) )                                        
                     segmented_image_names.pop(candidate_index)
-                    num_candidate_images -= 1                    
+                    num_candidate_images -= 1
+                    index_in_session += 1                    
                     break
                 else:                    
                     candidate_index = (candidate_index + 1)%num_candidate_images                                
-    break
+    

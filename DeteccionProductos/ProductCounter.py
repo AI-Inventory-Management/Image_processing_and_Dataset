@@ -4,12 +4,13 @@ import os
 import tensorflow.keras.models as models
 import tensorflow.keras.backend as backend
 import json
+import serial
 
 from FridgeContentDetector import *
 
 class FridgeContentCounter():
     def __init__(self, demo_images_dir = "../test3_images"):
-        
+        self.ser = serial.Serial("/dev/ttyACM0", 9600)
         self.demo_images_dir = demo_images_dir
         self.labels = []
         self.ean = []
@@ -76,21 +77,31 @@ class FridgeContentCounter():
         cv.waitKey(0)
         cv.destroyAllWindows()
     
-    def get_content_count(self, raw_image, output_shape=(150,420), verbose = False):
+    def get_ultrasonic_count(self):
+        numSens = self.fridge_rows * self.fridge_cols
+        values = []
+        while len(values) != numSens:
+            line = self.ser.readline()
+            values = line.split()
         
-        content_count = {}
-        for org_label in self.labels:
-            if org_label != "vacio":
-                content_count[org_label] = 0
+        quantity = []
+        for value in values:
+            if int(value) > 25:
+                quantity.append(0)
+            elif int(value) > 15:
+                quantity.append(1)
+            elif int(value) > 5:
+                quantity.append(2)
+            else:
+                quantity.append(3)
             
+        return quantity
+        
+    
+    def get_classification(self, raw_image, output_shape, verbose = False):
+        contents = []
+        
         cell_num = 1
-        
-        ean_count = {}
-        
-        for num in self.ean:
-            if num != "0":
-                ean_count[num] = 0
-
         try:
             content_cells = self.content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, output_shape)
             
@@ -126,10 +137,10 @@ class FridgeContentCounter():
                 
                 if verbose:                    
                     self.show_count_result(label, max_pred, cell_num, cell)
+                    
                 cell_num += 1
                 
-                if label != "vacio":
-                    content_count[label] += 1
+                contents.append(label)
                 
         except FridgeNotFoundException:
             
@@ -146,9 +157,31 @@ class FridgeContentCounter():
                 else:
                     label = self.labels[int(np.where(sum_preds == max_pred)[0][0])]
                 
-                if label != "vacio":
-                    content_count[label] += 1
+                contents.append(label)
+        return contents
+    
+    def get_content_count(self, raw_image, output_shape=(150,420), verbose = False):
+        ultrasonic_count = self.get_ultrasonic_count()
+        contents = self.get_classification(raw_image, output_shape, verbose)
         
+        content_count = {}
+        for org_label in self.labels:
+            if org_label != "vacio":
+                content_count[org_label] = 0
+        
+        ean_count = {}
+        
+        for num in self.ean:
+            if num != "0":
+                ean_count[num] = 0
+        
+        for i in range(len(contents)):
+            if contents[i] in content_count:
+                content_count[contents[i]] += int(ultrasonic_count[i])
+            else:
+                content_count[contents[i]] = int(ultrasonic_count[i])
+        
+        content_count.pop("vacio")
         i = 0
         for content in content_count:
             ean_count[self.ean[i]] = content_count[content]

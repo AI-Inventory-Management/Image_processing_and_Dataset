@@ -162,16 +162,19 @@ class InitializationMessageUploader():
                 print("Fridge information saved succesfully")
     
     def upload_message(self, verbose = False):
-        res = requests.post(self.severs_handler_endpoint, json=self.message)
-        if res.ok and verbose:
-            print("Message sent:")
-            print(self.unencrypted_message)
-            print()
-            print("data sended to server succesfully")
-        
-        self.store_id = str(res.json()["store_id"])
-        if verbose:
-            print (self.store_id)
+        try:
+            res = requests.post(self.severs_handler_endpoint, json=self.message)
+            if res.ok and verbose:
+                print("Message sent:")
+                print(self.unencrypted_message)
+                print()
+                print("data sended to server succesfully")
+            
+            self.store_id = str(res.json()["store_id"])
+            if verbose:
+                print (self.store_id)
+        except requests.exceptions.RequestException:
+            print("unnable to connect with server please check wifi connection")
             
     def update_software(self, verbose = False):
         with open("./data/product_data.json", 'r') as f:

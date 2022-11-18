@@ -10,7 +10,8 @@ from FridgeContentDetector import *
 
 class FridgeContentCounter():
     def __init__(self, demo_images_dir = "../test3_images"):
-        self.ser = serial.Serial("/dev/ttyACM0", 9600)
+        #self.ser = serial.Serial("/dev/ttyACM0", 9600)
+        self.ser = None
         self.demo_images_dir = demo_images_dir
         self.classifier_input_image_shape = (150,420)
         self.labels = []
@@ -23,7 +24,7 @@ class FridgeContentCounter():
             self.labels = data["labels"]
             self.ean = data["eans"]
         
-        '''
+        
         # ================ we setup the previous prediction ===============
         self.prev_pred = np.zeros((8, len(self.labels) - 1))
         self.prev_pred[:, 6] = 1
@@ -31,7 +32,7 @@ class FridgeContentCounter():
         with open("./data/product_data.json", 'w') as f:
             data["prev_pred"] = self.prev_pred.tolist()
             json.dump(data, f)
-        '''
+        
         
         self.model_path = ""
         self.alfa = 0.5
@@ -100,54 +101,44 @@ class FridgeContentCounter():
     
     def get_classification(self, raw_image, classifier_input_image_shape, verbose = False):
         contents = []        
-        cell_num = 1
+        cell_num = 0
         try:
-            content_cells = self.content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, classifier_input_image_shape)
-            
+            content_cells = self.content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, classifier_input_image_shape)            
             print("Fridge found")
             
             for cell in content_cells:                
                 cell = cell/255.0
                 expanded_cell = np.expand_dims(cell, axis = 0)                
                 pred = self.model.predict(expanded_cell)[0]
-                
-                #sum_preds = self.alfa * self.prev_pred[cell_num - 1] + self.beta * pred
-                sum_preds = pred
-
-                #self.prev_pred[cell_num - 1] = pred
-                '''
-                with open("./data/product_data.json", 'r') as f:
-                    data = json.load(f)
-                    f.close()
-                
-                with open("./data/product_data.json", 'w') as f:
-                    data["prev_pred"] = self.prev_pred.tolist()
-                    json.dump(data, f)
-                '''
-
-                max_pred = np.amax(sum_preds)
+                self.prev_pred[cell_num] = pred.copy()
+                max_pred = np.amax(pred)
                 
                 if max_pred < self.thresh:
                     label = self.labels[-1]
                 else:
-                    label = self.labels[int(np.where(sum_preds == max_pred)[0][0])]
-                
-                
+                    label = self.labels[int(np.where(pred == max_pred)[0][0])]
+
                 if verbose:                    
                     self.show_count_result(label, max_pred, cell_num, cell)
-                    
-                cell_num += 1
-                
+                                                    
                 contents.append(label)
+                cell_num += 1
+
+            with open("./data/product_data.json", 'r') as f:
+                data = json.load(f)
+                f.close()
+                
+            with open("./data/product_data.json", 'w') as f:
+                data["prev_pred"] = self.prev_pred.tolist()
+                json.dump(data, f)
                 
         except FridgeNotFoundException:
             
             if verbose:
                 print("Fridge not found")
 
-            for i in range(8):
+            for i in range(len(self.prev_pred)):
                 sum_preds = self.prev_pred[i]
-
                 max_pred = np.amax(sum_preds)
                 
                 if max_pred < self.thresh:
@@ -163,15 +154,13 @@ class FridgeContentCounter():
         contents = self.get_classification(raw_image, self.classifier_input_image_shape, verbose)
         
         content_count = {}
-        for org_label in self.labels:
-            if org_label != "vacio":
-                content_count[org_label] = 0
+        for org_label in self.labels:            
+            content_count[org_label] = 0
         
         ean_count = {}
         
-        for num in self.ean:
-            if num != "0":
-                ean_count[num] = 0
+        for num in self.ean:            
+            ean_count[num] = 0
         
         for label in contents:
             #TODO: REMOVE self.eans self.labels order dependency
@@ -184,7 +173,8 @@ class FridgeContentCounter():
                 content_count[label] = 1
                 ean_count[self.ean[self.labels.index(label)]] = 1
         
-        content_count.pop("vacio")        
+        content_count.pop("vacio")
+        ean_count.pop("0")        
 
         if verbose:
             print("content count:")

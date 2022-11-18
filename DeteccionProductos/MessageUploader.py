@@ -50,12 +50,15 @@ class MessageUploader ():
             print("Encrypted message")
             print(self.message)
         
-    def upload_message(self, verbose = False) -> bool:        
-        res = requests.post(self.severs_handler_endpoint, json=self.message)
-        if res.ok:
-            if verbose:
-                print("data sended to server succesfully")                            
-            return True
+    def upload_message(self, verbose = False) -> bool:
+        try:        
+            res = requests.post(self.severs_handler_endpoint, json=self.message)
+            if res.ok:
+                if verbose:
+                    print("data sended to server succesfully")                            
+                return True
+        except requests.exceptions.RequestException:
+            print("Unable to connect with server, plase check the wifi connection")
         return False                        
     
     def update_software(self, verbose = False):

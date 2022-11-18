@@ -1,3 +1,4 @@
+import copy
 import requests
 import json
 from datetime import datetime
@@ -7,6 +8,7 @@ from Encrypter import Encrypter
 class InitializationMessageUploader():
     def __init__(self, server = "http://192.168.195.106:7000"):        
         self.message = {}
+        self.unencrypted_message = {}
         self.fridge_info = {}
         self.severs_handler_endpoint = server + "/initaialization_messages"
         self.ean = []
@@ -61,13 +63,21 @@ class InitializationMessageUploader():
             print("Message")
             print(self.message)
         
+        self.unencrypted_message = copy.deepcopy(self.message)
         self.message = self.encrypter.encrypt(self.message)
         
         if verbose:
             print("Message encrypted")
             print(self.message)
         
-    def obtain_store_data(self):
+    def obtain_initial_store_data(self) -> bool:
+        """
+        This function will prompt a technician for the initial data 
+        of the store were the system is located.
+        
+        Returns:
+            bool value that represents if the store already had data
+        """
         try:
             with open("./data/store_data.json", 'r') as f:
                 data = json.load(f)
@@ -98,14 +108,13 @@ class InitializationMessageUploader():
                     
                     print("Finally, input fridge info")
                     fridge_cols = int(input("please write the NUMBER of columns in the fridge: "))
-                    fridge_rows = int(input("please write the NUMBER of rows in the fridge: "))
-                    
+                    fridge_rows = int(input("please write the NUMBER of rows in the fridge: "))                    
                         
                 else:
-                    return False
+                    return True
                     
             self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks, fridge_cols, fridge_rows)
-            return True
+            return False
         except:
             store_name = input("please write the NAME of the new store: ")
             store_latitude = float(input("please write the LATITUDE of the new store: "))
@@ -135,10 +144,10 @@ class InitializationMessageUploader():
             
             
             self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks, fridge_cols, fridge_rows)
-            return True
+            return False
         
     def build_data_file(self, verbose = False):
-        data = {"store_id" : self.store_id, "store_info" : self.message}
+        data = {"store_id" : self.store_id, "store_info" : self.unencrypted_message}
         with open("./data/store_data.json", 'w') as f:
             json.dump(data, f)
             f.close()
@@ -156,7 +165,7 @@ class InitializationMessageUploader():
         res = requests.post(self.severs_handler_endpoint, json=self.message)
         if res.ok and verbose:
             print("Message sent:")
-            print(self.message)
+            print(self.unencrypted_message)
             print()
             print("data sended to server succesfully")
         

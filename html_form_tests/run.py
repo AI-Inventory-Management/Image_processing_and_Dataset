@@ -16,12 +16,11 @@ app = Flask(__name__)
 @app.route('/', methods =["GET", "POST"])
 def connect_to_network():
     if request.method == "POST":       
-       network_name = request.form.get("nname")       
-       password = request.form.get("password")
-       #os.system("nmcli dev wifi connect {network_name} password {password}".format(network_name=network_name, password=password))
-       #return redirect(url_for('initialization_form'))
-       #os.system("^C")
-              
+        network_name = request.form.get("nname")       
+        password = request.form.get("password")
+        #os.system("nmcli dev wifi connect {network_name} password {password}".format(network_name=network_name, password=password))
+        if network_name != "" and password != "":
+            return redirect(url_for('initialization_form'))                     
     return render_template("Form1.html")
  
 @app.route('/initialization_form', methods =["GET", "POST"])
@@ -43,12 +42,12 @@ class ServerThread(threading.Thread):
         self.server.shutdown()
 
 if __name__=='__main__':       
-    #initialization_form_server = multiprocessing.Process(target= app.run(host = '0.0.0.0', port = 7000, debug = True) )       
-    webbrowser.open("http://127.0.0.1:7000/")        
+    #initialization_form_server = multiprocessing.Process(target= app.run(host = '0.0.0.0', port = 7000, debug = True) )                 
     #app.run(host = '0.0.0.0', port = 7000, debug = True)    
     global server
     server = ServerThread(app)
     server.start()
+    webbrowser.open("http://127.0.0.1:7000/")  
     print("st after server start")
     time.sleep(3)
     server.shutdown()

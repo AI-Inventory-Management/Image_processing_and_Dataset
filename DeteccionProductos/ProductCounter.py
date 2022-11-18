@@ -12,6 +12,7 @@ class FridgeContentCounter():
     def __init__(self, demo_images_dir = "../test3_images"):
         self.ser = serial.Serial("/dev/ttyACM0", 9600)
         self.demo_images_dir = demo_images_dir
+        self.classifier_input_image_shape = (150,420)
         self.labels = []
         self.ean = []
         self.content_detector = FridgeContentDetector()
@@ -22,16 +23,15 @@ class FridgeContentCounter():
             self.labels = data["labels"]
             self.ean = data["eans"]
         
+        '''
+        # ================ we setup the previous prediction ===============
         self.prev_pred = np.zeros((8, len(self.labels) - 1))
         self.prev_pred[:, 6] = 1
-        
-        with open("./data/product_data.json", 'r') as f:
-            data = json.load(f)
-            f.close()
         
         with open("./data/product_data.json", 'w') as f:
             data["prev_pred"] = self.prev_pred.tolist()
             json.dump(data, f)
+        '''
         
         self.model_path = ""
         self.alfa = 0.5
@@ -98,27 +98,24 @@ class FridgeContentCounter():
         return quantity
         
     
-    def get_classification(self, raw_image, output_shape, verbose = False):
-        contents = []
-        
+    def get_classification(self, raw_image, classifier_input_image_shape, verbose = False):
+        contents = []        
         cell_num = 1
         try:
-            content_cells = self.content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, output_shape)
+            content_cells = self.content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, classifier_input_image_shape)
             
             print("Fridge found")
             
-            for cell in content_cells:
-                # gray_cell = cv.cvtColor(cell, cv.COLOR_BGR2GRAY)
+            for cell in content_cells:                
                 cell = cell/255.0
-                expanded_cell = np.expand_dims(cell, axis = 0)
-                # print(expanded_cell.shape)
-                # expanded_cell = np.expand_dims(expanded_cell, axis = 3)
+                expanded_cell = np.expand_dims(cell, axis = 0)                
                 pred = self.model.predict(expanded_cell)[0]
                 
-                sum_preds = self.alfa * self.prev_pred[cell_num - 1] + self.beta * pred
-                
-                self.prev_pred[cell_num - 1] = pred
-                
+                #sum_preds = self.alfa * self.prev_pred[cell_num - 1] + self.beta * pred
+                sum_preds = pred
+
+                #self.prev_pred[cell_num - 1] = pred
+                '''
                 with open("./data/product_data.json", 'r') as f:
                     data = json.load(f)
                     f.close()
@@ -126,7 +123,8 @@ class FridgeContentCounter():
                 with open("./data/product_data.json", 'w') as f:
                     data["prev_pred"] = self.prev_pred.tolist()
                     json.dump(data, f)
-                
+                '''
+
                 max_pred = np.amax(sum_preds)
                 
                 if max_pred < self.thresh:
@@ -160,9 +158,9 @@ class FridgeContentCounter():
                 contents.append(label)
         return contents
     
-    def get_content_count(self, raw_image, output_shape=(150,420), verbose = False):
-        ultrasonic_count = self.get_ultrasonic_count()
-        contents = self.get_classification(raw_image, output_shape, verbose)
+    def get_content_count(self, raw_image, verbose = False):
+        #ultrasonic_count = self.get_ultrasonic_count()
+        contents = self.get_classification(raw_image, self.classifier_input_image_shape, verbose)
         
         content_count = {}
         for org_label in self.labels:
@@ -175,19 +173,21 @@ class FridgeContentCounter():
             if num != "0":
                 ean_count[num] = 0
         
-        for i in range(len(contents)):
-            if contents[i] in content_count:
-                content_count[contents[i]] += int(ultrasonic_count[i])
+        for label in contents:
+            #TODO: REMOVE self.eans self.labels order dependency
+            if label in content_count:
+                #content_count[contents[i]] += int(ultrasonic_count[i])
+                content_count[label] += 1
+                ean_count[self.ean[self.labels.index(label)]] += 1
             else:
-                content_count[contents[i]] = int(ultrasonic_count[i])
+                #content_count[contents[i]] = int(ultrasonic_count[i])
+                content_count[label] = 1
+                ean_count[self.ean[self.labels.index(label)]] = 1
         
-        content_count.pop("vacio")
-        i = 0
-        for content in content_count:
-            ean_count[self.ean[i]] = content_count[content]
-            i += 1
+        content_count.pop("vacio")        
 
         if verbose:
+            print("content count:")
             print(content_count)
 
         return ean_count

@@ -30,11 +30,6 @@ class MessageUploader ():
         self.camera.release()
         return self.image
     
-    def randomize_upload_time(self, time_range = (0, 30)):
-        min_time = time_range[0] * 60
-        max_time = time_range[1] * 60
-        return np.random.randint(min_time, max_time)
-    
     def build_message(self, verbose = False):
         content_count = self.fridge.get_content_count(self.image, verbose=verbose)        
         timestamp = int(time.time())
@@ -46,26 +41,22 @@ class MessageUploader ():
         message["timestamp"] = str(timestamp)       
         
         if verbose:
+            print("message built")
             print(message)
 
         self.message = self.encrypter.encrypt(message, verbose)
         
         if verbose:
-            print("Encrypted")
+            print("Encrypted message")
             print(self.message)
         
-    def upload_message(self, time_range = (0, 30), verbose = False):
-        wait_time = self.randomize_upload_time(time_range)
-        if verbose:
-            print("wait time is:")
-            print(wait_time)
-        Event().wait(wait_time)
+    def upload_message(self, verbose = False) -> bool:        
         res = requests.post(self.severs_handler_endpoint, json=self.message)
         if res.ok:
-            print("data sended to server succesfully")
-            # print(res.json())
-        print(self.message)
-        return(wait_time)
+            if verbose:
+                print("data sended to server succesfully")                            
+            return True
+        return False                        
     
     def update_software(self, verbose = False):
         self.fridge.update_software(verbose = verbose)

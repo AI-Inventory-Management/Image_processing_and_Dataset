@@ -83,5 +83,5 @@ class RIICOMain ():
         self.run(verbose = True, update_cycles = 5)
         
 if __name__ == '__main__':
-    main = RIICOMain(wait_time = 3)
+    main = RIICOMain(post_cycle_time = 3)
     main.run_demo()            

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <!-- <form action="{{ url_for('connect_to_network')}}" method="post"></form> -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+      body {
+        width: auto;
+        height: auto;
+        background-color: lightgray;
+        margin: auto;
+        text-align: center;
+        padding: 30px;
+        font-family: "Roboto";
+        position: relative;
+      }
+      .container {
+        width: 50%;
+        height: auto;
+        margin: auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.5);
+        text-align: start;
+      }
+      .label-text {
+        font-size: 20px;
+        font-weight: bold;
+        color: rgb(86, 86, 86);
+      }
+      input {
+        width: 100%;
+        border-radius: 5px;
+        border-color: lightgrey;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 5px;
+        background-color: lightgray;
+      }
+      .title {
+        font-size: 30px;
+        font-weight: bold;
+        text-align: center;
+        color: darkred;
+      }
+      button {
+        margin: 50px;
+        padding: 10px;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 5px;
+        box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.5);
+        border-color: darkred;
+        background-color: darkred;
+        color: white;
+        cursor: pointer;
+      }
+      .text {
+        font-size: 20px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <title>Oczo</title>
+    <div class="form">
+      <form action="{{ url_for('connect_to_network')}}" method="post">
+        <p class="title">¡Bienvenido!</p>
+        <p class="text">Escriba sus credenciales para conectarse a la red</p>
+        <div class="container">
+          <p>
+            <label class="label-text">Nombre de la red</label>
+            <input type="text" id="nname" name="nname" />
+          </p>
+          <p>
+            <label class="label-text">Contraseña</label>
+            <input type="password" id="pass" name="password" minlength="8" />
+          </p>
+        </div> 
+        <button type="submit">Siguiente</button>
+      </form>
+    </div>
+  </body>
+</html>

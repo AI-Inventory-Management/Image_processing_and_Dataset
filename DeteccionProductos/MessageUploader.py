@@ -24,8 +24,8 @@ class MessageUploader ():
         self.store_id = store_id
     
     def capture_image(self):
-        # self.camera = cv.VideoCapture(1)
-        self.camera = cv.VideoCapture(0)     # Uncomment this for testing on a personal computer
+        self.camera = cv.VideoCapture(1)
+        #self.camera = cv.VideoCapture(0)     # Uncomment this for testing on a personal computer
         res, self.image = self.camera.read()
         self.camera.release()
         return self.image

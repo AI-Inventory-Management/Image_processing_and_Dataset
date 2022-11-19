@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import time
 from Encrypter import Encrypter
+import InitializationForm 
 
 class InitializationMessageUploader():
     def __init__(self, server = "http://192.168.195.106:7000"):        
@@ -69,6 +70,23 @@ class InitializationMessageUploader():
         if verbose:
             print("Message encrypted")
             print(self.message)
+
+    def obtain_initial_store_data_gui(self) ->bool:
+        data = None
+        try:
+            with open("./data/store_data.json", 'r') as f:
+                data = json.load(f)
+                f.close()
+            if len(data) == 0:
+                InitializationForm.load_form()
+                while not InitializationForm.form_complete:
+                    i = 1
+                return False
+            else:
+                return True
+        except FileNotFoundError:
+            InitializationForm.load_form()            
+            return False
         
     def obtain_initial_store_data(self) -> bool:
         """
@@ -115,7 +133,7 @@ class InitializationMessageUploader():
                     
             self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks, fridge_cols, fridge_rows)
             return False
-        except:
+        except FileNotFoundError:
             store_name = input("please write the NAME of the new store: ")
             store_latitude = float(input("please write the LATITUDE of the new store: "))
             store_longitude = float(input("please write the LONGITUDE of the new store: "))

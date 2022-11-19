@@ -5,13 +5,17 @@ import cv2 as cv
 import json
 from threading import Event
 import random
+import os
 
-class RIICOMain ():
+class RIICOMain():
     def __init__(self, post_cycle_time = 1800):
         self.hardware_backend_server = "http://192.168.210.106:7000"
         self.initial_uploader = IniMU(self.hardware_backend_server)
         self.constant_messages_uploader = ContMU(self.hardware_backend_server)
         self.post_cycle_time = post_cycle_time
+        names_of_test_images_for_normal_fridge_flow = [i for i in os.listdir("..\\test_for_normal_fridge_flow") if i.endswith(".jpg")]
+        self.test_images_for_normal_fridge_flow = list( map(os.path.join , ["..\\test_for_normal_fridge_flow"]*len(names_of_test_images_for_normal_fridge_flow) , names_of_test_images_for_normal_fridge_flow) )        
+        self.test_images_for_normal_fridge_flow.sort()
         
     def send_initial(self, verbose = False):
         had_data = self.initial_uploader.obtain_initial_store_data()
@@ -44,7 +48,7 @@ class RIICOMain ():
         if verbose:
             print("Software updated succesfully")
     
-    def run(self, verbose = False, update_cycles = 1440):
+    def run(self, verbose = False, testing_with_fridge = True, update_cycles = 1440):
         """
         inputs: 
             time_range -> tuple with the time range (in minutes) to send a constant message with the store stock
@@ -65,7 +69,11 @@ class RIICOMain ():
                 print("Cycles till update: " +str(update_cycles - epoch))
                 
             Event().wait(message_wait)
-            img = self.constant_messages_uploader.capture_image()
+            if testing_with_fridge:
+                img = self.constant_messages_uploader.capture_image()
+            else:
+                img_name = self.test_images_for_normal_fridge_flow[epoch%len(self.test_images_for_normal_fridge_flow)]                
+                img = self.constant_messages_uploader.read_image(img_name)
             self.constant_messages_uploader.build_message(verbose = verbose)
             self.constant_messages_uploader.upload_message(verbose = verbose)
             
@@ -75,12 +83,13 @@ class RIICOMain ():
                 epoch = 0
 
             if verbose:
-                cv.imshow("Catura", img)
+                img_copy = cv.resize(img, (720,576))
+                cv.imshow("Captura", img_copy)
                 cv.waitKey(0)
                 cv.destroyAllWindows()
             
     def run_demo(self):
-        self.run(verbose = True, update_cycles = 5)
+        self.run(verbose = True, testing_with_fridge=False, update_cycles = 5)
         
 if __name__ == '__main__':
     main = RIICOMain(post_cycle_time = 3)

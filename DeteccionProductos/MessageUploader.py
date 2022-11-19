@@ -22,6 +22,10 @@ class MessageUploader ():
     
     def set_store_id(self, store_id):
         self.store_id = store_id
+
+    def read_image(self, image_name):
+        self.image = cv.imread(image_name)
+        return self.image
     
     def capture_image(self):
         self.camera = cv.VideoCapture(1)

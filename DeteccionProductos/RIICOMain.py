@@ -14,7 +14,7 @@ class RIICOMain ():
         self.post_cycle_time = post_cycle_time
         
     def send_initial(self, verbose = False):
-        had_data = self.initial_uploader.obtain_initial_store_data_gui()
+        had_data = self.initial_uploader.obtain_initial_store_data()
         if not had_data:
             self.initial_uploader.upload_message(verbose = verbose)
             self.initial_uploader.build_data_file(verbose = verbose)

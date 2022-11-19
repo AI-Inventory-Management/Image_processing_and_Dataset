@@ -61,7 +61,7 @@ class FridgeContentDetector():
 
     def find_fridge_content_box(self, image):
         height, width = image.shape[:2]
-        
+        '''
         morph_kernel_size = int(min(width,height)*0.03)
         morph_kernel = np.ones((morph_kernel_size,morph_kernel_size),np.uint8)
 
@@ -70,20 +70,21 @@ class FridgeContentDetector():
         fridge_treshold_2 = cv.inRange(hsv, (0, 70, 50), (10, 255,255))
         fridge_treshold = cv.bitwise_or(fridge_treshold_1, fridge_treshold_2)
         fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, morph_kernel)
-        
-        '''    
+        '''
+                   
         # Uncomment this section to test the binarization trough segmentation model             
-        expanded_image = cv.resize(image, (400, 400), interpolation = cv.INTER_AREA)        
+        expanded_image = cv.resize(image, (640, 360), interpolation = cv.INTER_AREA)        
         expanded_image = np.expand_dims(expanded_image, axis = 0)
         pred = self.model.predict(expanded_image)[0]
         mask = np.argmax(pred, axis=-1)
         mask *= 255        
         mask = np.uint8(mask)
-        cv.imshow("segmentation_res",mask)
-        cv.waitKey(0)
-        '''
-
+        fridge_treshold = cv.resize(mask, (width, height), interpolation = cv.INTER_AREA)
+        #cv.imshow("segmentation_res",mask)
+        #cv.waitKey(0)        
+        
         contours, hierarchy = cv.findContours(fridge_treshold, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
+        #contours, hierarchy = cv.findContours(mask, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
         contours, hierarchy = self.filter_coutours_by_area(contours, hierarchy, width*height*(1/10))
         if(len(contours)==0):
             raise FridgeNotFoundException()
@@ -93,9 +94,9 @@ class FridgeContentDetector():
         contours, hierarchy = self.sort_contours_by_area(contours, hierarchy)
 
         fridge_treshold_copy = fridge_treshold.copy()
+        #fridge_treshold_copy = mask.copy()
         fridge_treshold_copy = cv.merge((fridge_treshold_copy, fridge_treshold_copy, fridge_treshold_copy))
-        cv.drawContours(fridge_treshold_copy, contours, -1, (0,255,0), 3)
-        # cv.imshow("tresholded image", fridge_treshold_copy)            
+        cv.drawContours(fridge_treshold_copy, contours, -1, (0,255,0), 3)                    
         min_area_rect = cv.minAreaRect(contours[0])
         box = cv.boxPoints(min_area_rect)
         box = np.int0(box)            

@@ -1,1 +1,1 @@
-{"model_path": "./models/sodas_detector_prueb_corn2", "alfa": 0.4, "beta": 0.6, "thresh": 0.65}
+{"segmentation_model_path":"./models/segmentation_model2","model_path": "./models/sodas_detector_prot", "alfa": 0.4, "beta": 0.6, "thresh": 0.65}

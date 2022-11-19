@@ -1,8 +1,10 @@
+import tensorflow.keras.models as models
 import numpy as np
 import cv2 as cv
 import os
 import pandas as pd
 import time
+import json
 
 class FridgeNotFoundException(Exception):
     """
@@ -19,6 +21,14 @@ class FridgeContentDetector():
         self.sodas_sessions_dir_segmented = "./sodas_dataset_raw_segmented/session_{session_num}/"
         #self.sodas_final_dataset_dir = "./sodas_dataset/"
         self.sodas_final_dataset_dir = "./sodas_dataset_w_margin/"
+        self.segmentation_model_path = None
+        
+        with open("./data/model_data.json", 'r') as f:
+            data = json.load(f)
+            f.close
+            self.segmentation_model_path = data["segmentation_model_path"]            
+
+        self.segmentation_model = models.load_model(self.segmentation_model_path)
 
     def correct_image_brightness(self, raw_image):
         height, width = raw_image.shape[:2]

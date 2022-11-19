@@ -1,5 +1,7 @@
+import tensorflow.keras.models as models
 import numpy as np
 import cv2 as cv
+import json
 import os
 
 class FridgeNotFoundException(Exception):
@@ -13,6 +15,12 @@ class FridgeNotFoundException(Exception):
 class FridgeContentDetector():
     def __init__(self) -> None:
         self.demo_images_dir = "./test4_images/"
+        self.segmentation_model = None
+        with open("./data/model_data.json", 'r') as f:
+            data = json.load(f)
+            f.close
+            self.segmentation_model_path = data["segmentation_model_path"]
+        self.model = models.load_model(self.segmentation_model_path)
     
     def filter_coutours_by_area(self, contours, hierarchy, area):
         new_contours = []
@@ -53,6 +61,7 @@ class FridgeContentDetector():
 
     def find_fridge_content_box(self, image):
         height, width = image.shape[:2]
+        
         morph_kernel_size = int(min(width,height)*0.03)
         morph_kernel = np.ones((morph_kernel_size,morph_kernel_size),np.uint8)
 
@@ -61,6 +70,18 @@ class FridgeContentDetector():
         fridge_treshold_2 = cv.inRange(hsv, (0, 70, 50), (10, 255,255))
         fridge_treshold = cv.bitwise_or(fridge_treshold_1, fridge_treshold_2)
         fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, morph_kernel)
+        
+        '''    
+        # Uncomment this section to test the binarization trough segmentation model             
+        expanded_image = cv.resize(image, (400, 400), interpolation = cv.INTER_AREA)        
+        expanded_image = np.expand_dims(expanded_image, axis = 0)
+        pred = self.model.predict(expanded_image)[0]
+        mask = np.argmax(pred, axis=-1)
+        mask *= 255        
+        mask = np.uint8(mask)
+        cv.imshow("segmentation_res",mask)
+        cv.waitKey(0)
+        '''
 
         contours, hierarchy = cv.findContours(fridge_treshold, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
         contours, hierarchy = self.filter_coutours_by_area(contours, hierarchy, width*height*(1/10))

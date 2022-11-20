@@ -64,25 +64,27 @@ class FridgeContentDetector():
         
         morph_kernel_size = int(min(width,height)*0.03)
         morph_kernel = np.ones((morph_kernel_size,morph_kernel_size),np.uint8)
-
+        """
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         fridge_treshold_1 = cv.inRange(hsv, (160, 70, 50), (180, 255,255))
         fridge_treshold_2 = cv.inRange(hsv, (0, 70, 50), (10, 255,255))
         fridge_treshold = cv.bitwise_or(fridge_treshold_1, fridge_treshold_2)
         fridge_treshold = cv.morphologyEx(fridge_treshold, cv.MORPH_OPEN, morph_kernel)
-        
-        '''    
+        """
+
         # Uncomment this section to test the binarization trough segmentation model             
-        expanded_image = cv.resize(image, (400, 400), interpolation = cv.INTER_AREA)        
+        expanded_image = cv.resize(image, (640, 360), interpolation = cv.INTER_AREA)        
         expanded_image = np.expand_dims(expanded_image, axis = 0)
         pred = self.model.predict(expanded_image)[0]
         mask = np.argmax(pred, axis=-1)
         mask *= 255        
-        mask = np.uint8(mask)
-        cv.imshow("segmentation_res",mask)
+        fridge_treshold = np.uint8(mask)
+        cv.imshow("segmentation_res",fridge_treshold)
         cv.waitKey(0)
-        '''
-
+        #mask = cv.cvtColor(mask,cv.COLOR_GRAY2BGR)
+        #fridge_treshold = cv.resize(mask, (1920, 1080), interpolation = cv.INTER_AREA) 
+        #fridge_treshold = cv.cvtColor(fridge_treshold,cv.COLOR_BGR2GRAY)
+        
         contours, hierarchy = cv.findContours(fridge_treshold, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
         contours, hierarchy = self.filter_coutours_by_area(contours, hierarchy, width*height*(1/10))
         if(len(contours)==0):

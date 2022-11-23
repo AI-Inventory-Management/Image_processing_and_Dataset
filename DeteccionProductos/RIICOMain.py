@@ -18,7 +18,7 @@ class RIICOMain():
         self.test_images_for_normal_fridge_flow.sort()
         
     def send_initial(self, verbose = False):
-        had_data = self.initial_uploader.obtain_initial_store_data()
+        had_data = self.initial_uploader.obtain_initial_store_data_gui()
         if not had_data:
             self.initial_uploader.upload_message(verbose = verbose)
             self.initial_uploader.build_data_file(verbose = verbose)

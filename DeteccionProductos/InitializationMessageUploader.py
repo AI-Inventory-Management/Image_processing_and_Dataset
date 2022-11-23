@@ -75,14 +75,17 @@ class InitializationMessageUploader():
 
     def obtain_initial_store_data_gui(self) ->bool:
         data = None
+        ean2label_for_form = self.ean2label
+        ean2label_for_form.pop("0")
+        ean2label_for_form.pop("-1")
         try:
             with open("./data/store_data.json", 'r') as f:
                 data = json.load(f)
                 f.close()
             if len(data) == 0:
-                server = InitializationForm.load_form(self.ean2label)
+                server = InitializationForm.load_form(ean2label_for_form)
                 while not InitializationForm.form_complete:
-                    i = 1
+                    pass
                 self.build_message(
                     InitializationForm.form_data["store_name"],
                     InitializationForm.form_data["store_latitude"],
@@ -102,9 +105,9 @@ class InitializationMessageUploader():
             else:
                 return True
         except FileNotFoundError:
-            server = InitializationForm.load_form(self.ean2label)
+            server = InitializationForm.load_form(ean2label_for_form)
             while not InitializationForm.form_complete:
-                i = 1            
+                pass            
             self.build_message(
                 InitializationForm.form_data["store_name"],
                 InitializationForm.form_data["store_latitude"],

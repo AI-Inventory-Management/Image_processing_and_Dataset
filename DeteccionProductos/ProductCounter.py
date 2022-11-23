@@ -62,7 +62,7 @@ class FridgeContentCounter():
             with open("./data/fridge_data.json", 'r') as f:
                data = json.load(f)
                f.close()
-               self.fridge_cols, self.fridge_rows = data["fridge_dimensions"]
+               self.fridge_rows, self.fridge_cols = tuple(map(int,data["fridge_dimensions"]))
         except:
             pass
     
@@ -127,12 +127,14 @@ class FridgeContentCounter():
                 max_pred = np.amax(pred)
                 max_pred2 = np.amax(pred2)
                 max_pred3 = np.amax(pred3)
-                contador = 0
+                '''
+                same_votes = 0
                 for i in votaciones:
                     if i == max_value:
-                        contador += 1
+                        same_votes += 1
                 
-                if contador > 1:
+                if same_votes > 1:
+                    # there is a voting draw
                     max_pred_gen = max([max_pred,max_pred2,max_pred3])
                     if max_pred_gen == max_pred2:
                         self.prev_pred[cell_num] = pred2.copy()
@@ -146,35 +148,24 @@ class FridgeContentCounter():
                         self.prev_pred[cell_num] = pred3.copy()
                         max_pred = max_pred3
                         label_index = int(np.where(pred3 == max_pred)[0][0])
-                elif contador == 1:
-                    max_value = max(votaciones)
-                    label_index = votaciones.index(max_value)
-                    max_pred_gen = []
-                    if np.argmax(pred) == label_index:
-                        max_pred_gen.append(max_pred)
-                    elif np.argmax(pred2) == label_index:
-                        max_pred_gen.append(max_pred2)
-                    elif np.argmax(pred3) == label_index:
-                        max_pred_gen.append(max_pred3)
-                    max_pred_gen = max(max_pred_gen)
-                    if max_pred_gen == max_pred2:
-                        self.prev_pred[cell_num] = pred2.copy()
-                        max_pred = max_pred2
-                    elif max_pred_gen == max_pred:
-                        self.prev_pred[cell_num] = pred.copy()
-                        max_pred = max_pred
-                    elif max_pred_gen == max_pred3:
-                        self.prev_pred[cell_num] = pred3.copy()
-                        max_pred = max_pred3
+                elif same_votes == 1:
+                    '''
+                #max_value = max(votaciones)
+                label_index = votaciones.index(max_value)
+                max_pred_gen = []
+                if np.argmax(pred) == label_index:
+                    max_pred_gen.append(max_pred)
+                elif np.argmax(pred2) == label_index:
+                    max_pred_gen.append(max_pred2)
+                elif np.argmax(pred3) == label_index:
+                    max_pred_gen.append(max_pred3)
+                max_pred_average = sum(max_pred_gen)/len(max_pred_gen)
+                #max_pred_gen = max(max_pred_gen)
+                prev_pred_temp = [0]*len(votaciones)
+                prev_pred_temp[label_index] = max_pred_average
+                self.prev_pred[cell_num] = prev_pred_temp                                
 
-                #print(votaciones)
-
-
-                #self.prev_pred[cell_num] = pred.copy()
-                #max_pred = np.amax(pred)
-                #print(max_pred)
-
-                if max_pred < self.thresh:
+                if max_pred_average < self.thresh:
                     label = self.labels[-1]
                 else:
                     label = self.labels[int(label_index)]

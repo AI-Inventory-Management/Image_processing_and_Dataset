@@ -6,7 +6,7 @@
       body {
         width: auto;
         height: auto;
-        background-color: #7B7DBA;
+        background-color: black;
         margin: auto;
         text-align: center;
         padding: 30px;
@@ -38,21 +38,22 @@
         background-color: #C6CCDC;
       }
       .title {
-        font-size: 35px;
+        font-size: 25px;
         font-weight: bold;
         text-align: center;
-        color: #ECF0F9;
+        color: #fe4439;
       }
-      .button {
+      button {
         margin: 50px;
         padding: 10px;
         font-size: 20px;
         font-weight: bold;
         border-radius: 5px;
         box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.5);
-        border-color: #5E82F4;
-        background-color: #5E82F4;
-        color: #ECF0F9;
+        border-color: #fe4439;
+        background-color: #fe4439;
+        color: white;
+        cursor: pointer;
       }
       .product-name {
         font-size: 20px;
@@ -67,7 +68,7 @@
         border-radius: 5px;
       }
       ::-webkit-scrollbar-thumb {
-        background-color: #5E82F4;
+        background-color: #fe4439;
       }
       select{
         width: 90%;
@@ -84,224 +85,89 @@
   <body>
     <title>Oczo</title>
     <div class="form">
-      <p class="title">Detalles de la tienda</p>
-      <div class="container">
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Nombre</td>
-              <td class="label-text">Estado</td>
-            </tr>
-            <tr>
-              <td><input name = "Nombre"/></td>
-              <td>
-                <select name = "Estado" id="results">
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <td class="label-text">Municipio</td>
-              <td class="label-text">CP</td>
-            </tr>
-            <tr>
-              <td>
-                <select id = "results2" name = "Municipio">
-                </select>
-              </td>
-              <td><input type="number" name = "CP"/></td>
-            </tr>
-            <tr>
-              <td class="label-text" type="number">Latitud</td>
-              <td class="label-text" type="number">Longitud</td>
-            </tr>
-            <tr>
-              <td><input type="number" name = "Latitud"/></td>
-              <td><input type="number" name = "Longitud"/></td>
-            </tr>
-            <tr>
-              <td class="label-text">Dirección</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><input name = "Direccion"/></td>
-              <td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="form">
-        <p class="title">Detalles del Refri</p>
+      <form action="{{ url_for('initialization_form')}}" method="post">
+        <p class="title">Detalles de la tienda</p>
         <div class="container">
           <table>
             <tbody>
               <tr>
-                <td class="label-text" type="number">Filas</td>
-                <td class="label-text" type="number">Columnas</td>
+                <td class="label-text">Nombre</td>
+                <td class="label-text">Estado</td>
               </tr>
               <tr>
-                <td><input type="number" name = "Filas"/></td>
-                <td><input type="number" name = "Columnas"/></td>
+                <td><input name="store_name"/></td>
+                <td>
+                  <select id="results" name="state">
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="label-text">Municipio</td>
+                <td class="label-text">CP</td>
+              </tr>
+              <tr>
+                <td>
+                  <select id = "results2" name="municipality">
+                  </select>
+                </td>
+                <td><input type="number" name="zip_code"/></td>
+              </tr>
+              <tr>
+                <td class="label-text" type="number">Latitud</td>
+                <td class="label-text" type="number">Longitud</td>
+              </tr>
+              <tr>
+                <td><input type="number" name="latitude"></td>
+                <td><input type="number" name="longitude"/></td>
+              </tr>
+              <tr>
+                <td class="label-text">Dirección</td>
+              </tr>
+              <tr>
+                <td><input name="address"/></td>
               </tr>
             </tbody>
           </table>
         </div>
-
-      <p class="title">Detalles del stock</p>
-      <div class="container">
-        {{ product_block }}
-        <p class="product-name">Fresca Botella de Plástico 60</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Sidral Mundet Lata 355 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Fresca Lata 355 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Powerade Mora Azul Botella de</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Delaware Punch Lata 355 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Del Valle Néctar de Durazno B</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Sidral Mundet Botella de Plást</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Coca Cola Botella de Plástico</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Powerade Mora Azul Lata 453 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Coca Cola Lata 355 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <button class="button">Enviar</button>
-    </div>
+        <p class="title">Detalles del stock</p>
+        <div class="container">
+          {% for i in product_block %}
+            {% autoescape off %}
+            <p class="product-name">{{ i.name }}</p>
+            <table>
+              <tbody>
+                <tr>
+                  <td class="label-text" >Stock Actual</td>
+                  <td class="label-text" >Stock Mínimo</td>
+                  <td class="label-text" >Stock Máximo</td>
+                </tr>
+                <tr>              
+                  <td><input type="number" name= {{i.current_s_tag_name}} /></td>
+                  <td><input type="number" name= {{i.min_s_tag_name}} /></td>
+                  <td><input type="number" name= {{i.max_s_tag_name}} /></td>
+                </tr>
+              </tbody>
+            </table>
+            {% endautoescape %}
+          {% endfor %}
+        </div>
+        <p class="title">Detalles del refigerador</p>
+        <div class="container">
+          <table>
+            <tbody>
+              <tr>
+                <td class="label-text">Numero de repisas</td>
+                <td class="label-text">Numero de refrescos <br> que caben en una repisa </td>
+              </tr>
+              <tr>
+                <td><input type="number" name="num_rows"/></td>
+                <td><input type="number" name="num_cols"/></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="submit">Siguiente</button>
+      </form>
     <script type="text/javascript">
       var states = [
         { value: "AGS", label: "Aguascalientes" },

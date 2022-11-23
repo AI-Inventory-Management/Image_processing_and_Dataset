@@ -64,7 +64,7 @@ class FridgeContentDetector():
         '''
         morph_kernel_size = int(min(width,height)*0.03)
         morph_kernel = np.ones((morph_kernel_size,morph_kernel_size),np.uint8)
-
+        """
         hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
         fridge_treshold_1 = cv.inRange(hsv, (160, 70, 50), (180, 255,255))
         fridge_treshold_2 = cv.inRange(hsv, (0, 70, 50), (10, 255,255))

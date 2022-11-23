@@ -6,7 +6,7 @@
       body {
         width: auto;
         height: auto;
-        background-color: lightgray;
+        background-color: black;
         margin: auto;
         text-align: center;
         padding: 30px;
@@ -15,9 +15,10 @@
       }
       .container {
         width: 70%;
-        height: 300px;
+        height: auto;
+        max-height: 300px;
         margin: auto;
-        background-color: white;
+        background-color: #ECF0F9;
         padding: 10px;
         border-radius: 10px;
         box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.5);
@@ -26,22 +27,21 @@
       .label-text {
         font-size: 20px;
         font-weight: bold;
-        color: rgb(86, 86, 86);
       }
       input {
         width: 90%;
         border-radius: 5px;
-        border-color: lightgrey;
+        border-color: #C6CCDC;
         font-size: 20px;
         font-weight: bold;
         padding: 5px;
-        background-color: lightgray;
+        background-color: #C6CCDC;
       }
       .title {
-        font-size: 35px;
+        font-size: 25px;
         font-weight: bold;
         text-align: center;
-        color: darkred;
+        color: #fe4439;
       }
       .button {
         margin: 50px;
@@ -50,9 +50,9 @@
         font-weight: bold;
         border-radius: 5px;
         box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.5);
-        border-color: darkred;
-        background-color: darkred;
-        color: white;
+        border-color: #fe4439;
+        background-color: #fe4439;
+        color: #ECF0F9;
       }
       .product-name {
         font-size: 20px;
@@ -67,16 +67,16 @@
         border-radius: 5px;
       }
       ::-webkit-scrollbar-thumb {
-        background-color: darkgrey;
+        background-color: #fe4439;
       }
       select{
         width: 90%;
         border-radius: 5px;
-        border-color: lightgrey;
+        border-color: #C6CCDC;
         font-size: 20px;
         font-weight: bold;
         padding: 5px;
-        background-color: lightgray;
+        background-color: #C6CCDC;
       }
       
     </style>
@@ -129,174 +129,26 @@
       </div>
       <p class="title">Detalles del stock</p>
       <div class="container">
-        <p class="product-name">Fuze Tea Durazno 600 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Fresca Botella de Plástico 60</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Sidral Mundet Lata 355 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Fresca Lata 355 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Powerade Mora Azul Botella de</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Delaware Punch Lata 355 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Del Valle Néctar de Durazno B</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Sidral Mundet Botella de Plást</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Coca Cola Botella de Plástico</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Powerade Mora Azul Lata 453 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="product-name">Coca Cola Lata 355 ml</p>
-        <table>
-          <tbody>
-            <tr>
-              <td class="label-text">Stock Actual</td>
-              <td class="label-text">Stock Mínimo</td>
-              <td class="label-text">Stock Máximo</td>
-            </tr>
-            <tr>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-              <td><input type="number" /></td>
-            </tr>
-          </tbody>
-        </table>
+        {% for i in product_block %}
+          {% autoescape off %}
+          <p class="product-name">{{ i.name }}</p>
+          <table>
+            <tbody>
+              <tr>
+                <td class="label-text" >Stock Actual</td>
+                <td class="label-text" >Stock Mínimo</td>
+                <td class="label-text" >Stock Máximo</td>
+              </tr>
+              <tr>              
+                <td><input type="number" name= {{i.current}}/></td>
+                <td><input type="number" name= {{i.min}}/></td>
+                <td><input type="number" name= {{i.max}}/></td>
+              </tr>
+            </tbody>
+          </table>
+          {% endautoescape %}
+        {% endfor %}
       </div>
-      <button class="button">Enviar</button>
-    </div>
     <script type="text/javascript">
       var states = [
         { value: "AGS", label: "Aguascalientes" },

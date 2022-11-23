@@ -25,7 +25,16 @@ def connect_to_network():
  
 @app.route('/initialization_form', methods =["GET", "POST"])
 def initialization_form():
-    return render_template("Form2.html")
+    product_block = []
+    for i in range(2):
+        product_name = 'Fanta'
+        product_ean_current_stock="\"6848564646\"_current"
+        product_ean_min_stock="\"6848564646\"_min"
+        product_ean_max_stock="\"6848564646\"_max"
+        product_html_code = {"name": product_name , "current": product_ean_current_stock, "min": product_ean_min_stock, "max": product_ean_max_stock}
+        product_block.append(product_html_code)
+
+    return render_template("Form2.html", product_block = product_block)
 
 class ServerThread(threading.Thread):
 
@@ -47,7 +56,7 @@ if __name__=='__main__':
     global server
     server = ServerThread(app)
     server.start()
-    webbrowser.open("http://127.0.0.1:7000/")  
+    webbrowser.open("http://127.0.0.1:7000/initialization_form")  
     print("st after server start")
     time.sleep(3)
     server.shutdown()

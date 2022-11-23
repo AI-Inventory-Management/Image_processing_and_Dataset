@@ -82,7 +82,7 @@ def initialization_form():
         form_data["fridge_rows"] = request.form.get("Filas")
         form_complete = True        
         return redirect(url_for('success_page'))          
-    return render_template("Form2.html", product_block = Markup(product_html_code) )
+    return render_template("Form2.html", product_block = product_html_code)
 
 @app.route('/succes_page', methods =["GET"])
 def succes_page():    

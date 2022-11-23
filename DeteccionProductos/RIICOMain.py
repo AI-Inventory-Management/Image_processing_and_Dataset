@@ -13,8 +13,9 @@ class RIICOMain():
         self.initial_uploader = IniMU(self.hardware_backend_server)
         self.constant_messages_uploader = ContMU(self.hardware_backend_server)
         self.post_cycle_time = post_cycle_time
-        names_of_test_images_for_normal_fridge_flow = [i for i in os.listdir("..\\test_for_normal_fridge_flow") if i.endswith(".jpg")]
-        self.test_images_for_normal_fridge_flow = list( map(os.path.join , ["..\\test_for_normal_fridge_flow"]*len(names_of_test_images_for_normal_fridge_flow) , names_of_test_images_for_normal_fridge_flow) )        
+        testing_without_fridge_dir = os.path.join("..", "test_for_normal_fridge_flow")        
+        names_of_test_images_for_normal_fridge_flow = [i for i in os.listdir(testing_without_fridge_dir) if i.endswith(".jpg")]
+        self.test_images_for_normal_fridge_flow = list( map(os.path.join , [testing_without_fridge_dir]*len(names_of_test_images_for_normal_fridge_flow) , names_of_test_images_for_normal_fridge_flow) )        
         self.test_images_for_normal_fridge_flow.sort()
         
     def send_initial(self, verbose = False):

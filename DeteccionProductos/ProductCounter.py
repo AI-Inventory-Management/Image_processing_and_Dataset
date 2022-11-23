@@ -93,7 +93,7 @@ class FridgeContentCounter():
         
         quantity = []
         for value in values:
-            if int(value) >= 25:
+            if int(value) >= 23:
                 quantity.append(0)
             elif int(value) >= 17.5:
                 quantity.append(1)

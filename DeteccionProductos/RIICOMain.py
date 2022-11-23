@@ -9,7 +9,7 @@ import os
 
 class RIICOMain():
     def __init__(self, post_cycle_time = 1800):
-        self.hardware_backend_server = "http://192.168.210.106:7000"
+        self.hardware_backend_server = "http://192.168.26.106:7000"
         self.initial_uploader = IniMU(self.hardware_backend_server)
         self.constant_messages_uploader = ContMU(self.hardware_backend_server)
         self.post_cycle_time = post_cycle_time

@@ -14,6 +14,8 @@ class InitializationMessageUploader():
         self.severs_handler_endpoint = server + "/initaialization_messages"
         self.ean = []
         self.soda_labels = []
+        self.ean2label = {}
+        self.label2ean = {}
         self.encrypter = Encrypter()
         
         with open("./data/product_data.json", 'r') as f:
@@ -21,11 +23,11 @@ class InitializationMessageUploader():
             f.close()
             self.ean = data["eans"]
             self.ean.remove("-1")
-            self.soda_labels = data["labels"]
-            self.soda_labels
+            self.soda_labels = data["labels"]            
             self.soda_labels.remove("vacio")
             self.soda_labels.remove("producto no oficial")
-            
+            self.ean2label = data["ean2label"]
+            self.label2ean = data["label2ean"]
         # self.soda_labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml']
         self.store_id = ""
     
@@ -78,14 +80,46 @@ class InitializationMessageUploader():
                 data = json.load(f)
                 f.close()
             if len(data) == 0:
-                InitializationForm.load_form()
+                server = InitializationForm.load_form(self.ean2label)
                 while not InitializationForm.form_complete:
                     i = 1
+                self.build_message(
+                    InitializationForm.form_data["store_name"],
+                    InitializationForm.form_data["store_latitude"],
+                    InitializationForm.form_data["store_longitude"],
+                    InitializationForm.form_data["store_state"],
+                    InitializationForm.form_data["store_municipality"],
+                    InitializationForm.form_data["store_zip_code"],
+                    InitializationForm.form_data["store_address"],
+                    InitializationForm.form_data["current_stock"],
+                    InitializationForm.form_data["min_stocks"],
+                    InitializationForm.form_data["max_stocks"],
+                    InitializationForm.form_data["fridge_cols"],
+                    InitializationForm.form_data["fridge_rows"]
+                )
+                server.shutdown()
                 return False
             else:
                 return True
         except FileNotFoundError:
-            InitializationForm.load_form()            
+            server = InitializationForm.load_form(self.ean2label)
+            while not InitializationForm.form_complete:
+                i = 1            
+            self.build_message(
+                InitializationForm.form_data["store_name"],
+                InitializationForm.form_data["store_latitude"],
+                InitializationForm.form_data["store_longitude"],
+                InitializationForm.form_data["store_state"],
+                InitializationForm.form_data["store_municipality"],
+                InitializationForm.form_data["store_zip_code"],
+                InitializationForm.form_data["store_address"],
+                InitializationForm.form_data["current_stock"],
+                InitializationForm.form_data["min_stocks"],
+                InitializationForm.form_data["max_stocks"],
+                InitializationForm.form_data["fridge_cols"],
+                InitializationForm.form_data["fridge_rows"]
+                )
+            server.shutdown()            
             return False
         
     def obtain_initial_store_data(self) -> bool:

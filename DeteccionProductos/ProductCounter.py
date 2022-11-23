@@ -8,12 +8,8 @@ import serial
 
 from FridgeContentDetector import *
 
-class FridgeContentCounter():
-<<<<<<< HEAD
-    def __init__(self, demo_images_dir = "../test3_images"):
-=======
+class FridgeContentCounter():    
     def __init__(self, demo_images_dir = "../test1_images"):
->>>>>>> master
         #self.ser = serial.Serial("/dev/ttyACM0", 9600)
         self.ser = None
         self.demo_images_dir = demo_images_dir

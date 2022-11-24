@@ -1,21 +1,21 @@
 import numpy as np
 import cv2 as cv
 import os
-import tensorflow.keras.models as models
-import tensorflow.keras.backend as backend
 import json
 import serial
 
 from FridgeContentDetector import *
 
-class FridgeContentCounter():    
+class OVFridgeContentCounter():    
     def __init__(self, demo_images_dir = "../test1_images"):        
         self.ser = None
         self.demo_images_dir = demo_images_dir
         self.classifier_input_image_shape = (150,420)
         self.labels = []
         self.ean = []
-        self.content_detector = FridgeContentDetector()        
+        self.content_detector = FridgeContentDetector()
+        from openvino.runtime import Core
+        self.ie = Core()        
         
         with open("./data/product_data.json", 'r') as f:
             data = json.load(f)
@@ -31,8 +31,7 @@ class FridgeContentCounter():
         with open("./data/product_data.json", 'w') as f:
             data["prev_pred"] = self.prev_pred.tolist()
             json.dump(data, f)
-        
-        
+                
         self.model_path = ""
         self.model_path2 = ""
         self.model_path3 = ""        
@@ -41,15 +40,21 @@ class FridgeContentCounter():
         with open("./data/model_data.json", 'r') as f:
             data = json.load(f)
             f.close
-            self.model_path = data["model_path"]
-            self.model_path2 = data["model_path2"]
-            self.model_path3 = data["model_path3"]            
+            self.model_path = data["ov_model_path"]
+            self.model_path2 = data["ov_model_path2"]
+            self.model_path3 = data["ov_model_path3"]            
             self.thresh = data["thresh"]
         
-        self.model = models.load_model(self.model_path)
-        self.model2 = models.load_model(self.model_path2)
-        self.model3 = models.load_model(self.model_path3)
-        
+        model_temp = self.ie.read_model(model = self.model_path)
+        self.model = self.ie.compile_model(model = model_temp, device_name = "CPU")
+        self.model_output_layer = self.model.output(0)
+        model_temp2 = self.ie.read_model(model = self.model_path2)
+        self.model2 = self.ie.compile_model(model = model_temp2, device_name = "CPU")
+        self.model_output_layer2 = self.model2.output(0)
+        model_temp3 = self.ie.read_model(model = self.model_path3)
+        self.model3 = self.ie.compile_model(model = model_temp3, device_name = "CPU")
+        self.model_output_layer3 = self.model3.output(0)
+
         self.fridge_cols = 4
         self.fridge_rows = 2
         
@@ -60,7 +65,6 @@ class FridgeContentCounter():
                self.fridge_rows, self.fridge_cols = tuple(map(int,data["fridge_dimensions"]))
         except:
             pass
-    
     
     def show_count_result(self, label, max_pred, cell_num, cell):
         pred_lbl = label 
@@ -104,8 +108,7 @@ class FridgeContentCounter():
                 quantity.append(3)
             
         return quantity
-        
-    
+         
     def get_classification(self, raw_image, classifier_input_image_shape, verbose = False):
         contents = []        
         cell_num = 0
@@ -116,9 +119,9 @@ class FridgeContentCounter():
             for cell in content_cells:                
                 cell = cell/255.0
                 expanded_cell = np.expand_dims(cell, axis = 0)                
-                pred = self.model.predict(expanded_cell)[0]
-                pred2 = self.model2.predict(expanded_cell)[0]
-                pred3 = self.model3.predict(expanded_cell)[0]
+                pred = self.model([expanded_cell])[self.model_output_layer]
+                pred2 = self.model2([expanded_cell])[self.model_output_layer2]
+                pred3 = self.model3([expanded_cell])[self.model_output_layer3]
                 votaciones = [0,0,0,0,0,0,0,0,0,0,0,0]
                 votaciones[int(np.argmax(pred))] = votaciones[int(np.argmax(pred))]+1
                 votaciones[int(np.argmax(pred2))] = votaciones[int(np.argmax(pred2))]+1

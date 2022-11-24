@@ -20,18 +20,17 @@
         text-align: center;
         color: #fe4439;
       }
+      .text {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+      }
     </style>
-    <script>
-        window.setInterval(
-            function(){
-                window.location.replace("{{ url_for('check_internet_thread_status') }}")    
-            }
-            , 1000
-        )      
-    </script>
   </head>
   <body>
-    <title>Conectando...</title>
-    <p class="title">Conectando...</p>
+    <title>Exito</title>
+    <p class="title">Éxito</p>
+    <p class="text">Puede cerrar la pestaña</p>
   </body>
 </html>

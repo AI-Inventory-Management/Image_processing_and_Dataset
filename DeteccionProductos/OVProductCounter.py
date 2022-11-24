@@ -1,7 +1,6 @@
 import numpy as np
 import cv2 as cv
 import os
-from openvino.runtime import Core
 import json
 import serial
 
@@ -15,6 +14,7 @@ class OVFridgeContentCounter():
         self.labels = []
         self.ean = []
         self.content_detector = FridgeContentDetector()
+        from openvino.runtime import Core
         self.ie = Core()        
         
         with open("./data/product_data.json", 'r') as f:

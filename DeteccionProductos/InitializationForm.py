@@ -24,16 +24,7 @@ form_data = {
     "fridge_rows": None
 } 
 
-'''                    
-for soda in self.soda_labels:
-    print('')
-    print('-------------- {s} --------------'.format(s=soda))
-    current_stock[self.ean[i]] = int(input("how many {s} are on the store right now: ".format(s=soda)))
-    min_stocks[self.ean[i]] = int(input("whats the min of {s} to generate an alert: ".format(s=soda)))
-    max_stocks[self.ean[i]] = int(input("whats amount of {s} to fill the store: ".format(s=soda)))
-                        
-    i += 1
-'''
+
 def get_stock_tag_names():
     global eans2labels
     global stock_tag_names
@@ -48,16 +39,17 @@ def get_stock_tag_names():
 
 @app.route('/', methods =["GET", "POST"])
 def connect_to_network():
-    #global server    
     if request.method == "POST":       
         network_name = request.form.get("nname")       
         password = request.form.get("password")
-        #os.system("nmcli dev wifi connect {network_name} password {password}".format(network_name=network_name, password=password))
         if network_name != "" and password != "":
-            #server.shutdown()
             os.system("nmcli dev wifi connect {network_name} password {password}".format(network_name=network_name, password=password))
             return redirect(url_for('initialization_form'))                                 
     return render_template("Form1.html")
+
+@app.route('/connecting', methods = ["GET"])    
+def connecting():
+	return "connecting ..."
  
 @app.route('/initialization_form', methods =["GET", "POST"])
 def initialization_form():

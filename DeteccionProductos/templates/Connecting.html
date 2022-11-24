@@ -1,0 +1,15 @@
+<html>
+  <head>    
+    <script>
+        window.setInterval(
+            function(){
+                window.location.replace("{{ url_for('check_internet_thread_status') }}")    
+            }
+            , 1000
+        )      
+    </script>
+  </head>
+  <body>
+    <p>Connecting...</p>
+  </body>
+</html>

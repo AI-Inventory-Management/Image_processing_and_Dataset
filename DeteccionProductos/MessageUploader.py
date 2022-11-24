@@ -19,6 +19,11 @@ class MessageUploader ():
         self.fridge = FridgeContentCounter()
         self.camera = None
         self.encrypter = Encrypter()
+        self.running_on_intel_nuc = False
+
+    def activate_inference_with_open_vino(self):
+        #self.fridge = OpenVinoFridgeContentCounter()
+        pass    
     
     def set_store_id(self, store_id):
         self.store_id = store_id

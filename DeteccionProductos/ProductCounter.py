@@ -9,13 +9,13 @@ import serial
 from FridgeContentDetector import *
 
 class FridgeContentCounter():    
-    def __init__(self, demo_images_dir = "../test1_images"):
-        self.ser = serial.Serial("/dev/ttyACM0", 9600)
+    def __init__(self, demo_images_dir = "../test1_images"):        
+        self.ser = None
         self.demo_images_dir = demo_images_dir
         self.classifier_input_image_shape = (150,420)
         self.labels = []
         self.ean = []
-        self.content_detector = FridgeContentDetector()
+        self.content_detector = FridgeContentDetector()        
         
         with open("./data/product_data.json", 'r') as f:
             data = json.load(f)
@@ -65,6 +65,7 @@ class FridgeContentCounter():
         except:
             pass
     
+    
     def show_count_result(self, label, max_pred, cell_num, cell):
         pred_lbl = label 
         pred_pred =  str(max_pred*100) + "% "
@@ -85,15 +86,17 @@ class FridgeContentCounter():
     
     def get_ultrasonic_count(self):
         numSens = self.fridge_rows * self.fridge_cols
-        values = ["26 26 26 26 26 26 26 26"]
-        
-        try:
-            while len(values) != numSens:
-                line = self.ser.readline()
-                values = line.split()
-                
-        except:
-            print("Unable to read sensors. Call")
+        if self.ser is None:
+            try:
+                self.ser = serial.Serial("/dev/ttyACM0", 9600)
+            except serial.serialutil.SerialException:
+                print("Error: Arduino disconnected")
+                return [1]*numSens
+                        
+        values = []        
+        while len(values) != numSens:
+            line = self.ser.readline()
+            values = line.split()
             
         quantity = []
         for value in values:

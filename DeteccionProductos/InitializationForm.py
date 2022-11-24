@@ -9,6 +9,7 @@ app = Flask(__name__)
 server = ServerThread.ServerThread(app)
 internet_check_thread = None
 form_complete = False
+running_on_intel_nuc = False
 eans2labels = None
 stock_tag_names = []
 form_data = {
@@ -46,14 +47,11 @@ def connect_to_network():
         network_name = request.form.get("nname")       
         password = request.form.get("password")
         if network_name != "" and password != "":
-            #os.system("nmcli dev wifi connect {network_name} password {password}".format(network_name=network_name, password=password))
+            if running_on_intel_nuc:
+                os.system("nmcli dev wifi connect {network_name} password {password}".format(network_name=network_name, password=password))
             internet_check_thread.start()
             return redirect(url_for('connecting'))                                 
     return render_template("Form1.html")
-
-@app.route('/connecting', methods = ["GET"])    
-def connecting():
-	return "connecting ..."
  
 @app.route('/initialization_form', methods =["GET", "POST"])
 def initialization_form():
@@ -98,11 +96,13 @@ def check_internet_thread_status():
         else:
             return redirect(url_for('connect_to_network'))
 
-def load_form(soda_eans2labels):
+def load_form(soda_eans2labels, running_on_nuc):
     global app
     global server
     global eans2labels
+    global running_on_intel_nuc
     eans2labels = soda_eans2labels
+    running_on_intel_nuc = running_on_nuc
     server.start()
     time.sleep(1)
     webbrowser.open("http://127.0.0.1:7000/")          

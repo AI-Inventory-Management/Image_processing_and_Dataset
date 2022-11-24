@@ -17,6 +17,7 @@ class InitializationMessageUploader():
         self.ean2label = {}
         self.label2ean = {}
         self.encrypter = Encrypter()
+        self.running_on_intel_nuc = False
         
         with open("./data/product_data.json", 'r') as f:
             data = json.load(f)
@@ -83,7 +84,7 @@ class InitializationMessageUploader():
                 data = json.load(f)
                 f.close()
             if len(data) == 0:
-                server = InitializationForm.load_form(ean2label_for_form)
+                server = InitializationForm.load_form(ean2label_for_form, self.running_on_intel_nuc)
                 while not InitializationForm.form_complete:
                     pass
                 self.build_message(
@@ -105,7 +106,7 @@ class InitializationMessageUploader():
             else:
                 return True
         except FileNotFoundError:
-            server = InitializationForm.load_form(ean2label_for_form)
+            server = InitializationForm.load_form(ean2label_for_form, self.running_on_intel_nuc)
             while not InitializationForm.form_complete:
                 pass            
             self.build_message(

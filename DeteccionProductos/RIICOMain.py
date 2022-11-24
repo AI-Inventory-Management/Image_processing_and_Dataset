@@ -12,11 +12,16 @@ class RIICOMain():
         self.hardware_backend_server = "http://192.168.29.106:7000"
         self.initial_uploader = IniMU(self.hardware_backend_server)
         self.constant_messages_uploader = ContMU(self.hardware_backend_server)
+        self.running_on_nuc = False
         self.post_cycle_time = post_cycle_time
         testing_without_fridge_dir = os.path.join("..", "test_for_normal_fridge_flow")        
         names_of_test_images_for_normal_fridge_flow = [i for i in os.listdir(testing_without_fridge_dir) if i.endswith(".jpg")]
         self.test_images_for_normal_fridge_flow = list( map(os.path.join , [testing_without_fridge_dir]*len(names_of_test_images_for_normal_fridge_flow) , names_of_test_images_for_normal_fridge_flow) )        
         self.test_images_for_normal_fridge_flow.sort()
+
+    def activate_intel_nuc_features(self):
+        self.initial_uploader.running_on_intel_nuc = True
+        self.constant_messages_uploader.running_on_intel_nuc = True                
         
     def send_initial(self, verbose = False):
         had_data = self.initial_uploader.obtain_initial_store_data_gui()
@@ -49,12 +54,14 @@ class RIICOMain():
         if verbose:
             print("Software updated succesfully")
     
-    def run(self, verbose = False, testing_with_fridge = True, update_cycles = 1440):
+    def run(self, verbose = False, testing_with_fridge = True, update_cycles = 1440, running_on_nuc = False):
         """
         inputs: 
             time_range -> tuple with the time range (in minutes) to send a constant message with the store stock
             update_cycles -> time ??
         """
+        if running_on_nuc:
+            self.activate_intel_nuc_features()
         self.send_initial(verbose = verbose)
         self.update_store_info(verbose = verbose)
         
@@ -93,7 +100,7 @@ class RIICOMain():
             no_fridge_counter = (no_fridge_counter+1)%len(self.test_images_for_normal_fridge_flow)
             
     def run_demo(self):
-        self.run(verbose = True, testing_with_fridge=True, update_cycles = 5)
+        self.run(verbose = True, testing_with_fridge=False, update_cycles = 5)
         
 if __name__ == '__main__':
     main = RIICOMain(post_cycle_time = 3)

@@ -86,11 +86,16 @@ class FridgeContentCounter():
     
     def get_ultrasonic_count(self):
         numSens = self.fridge_rows * self.fridge_cols
-        values = []
-        while len(values) != numSens:
-            line = self.ser.readline()
-            values = line.split()
+        values = ["26 26 26 26 26 26 26 26"]
         
+        try:
+            while len(values) != numSens:
+                line = self.ser.readline()
+                values = line.split()
+                
+        except:
+            print("Unable to read sensors. Call")
+            
         quantity = []
         for value in values:
             if int(value) > 20:

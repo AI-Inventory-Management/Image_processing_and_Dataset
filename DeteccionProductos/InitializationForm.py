@@ -55,6 +55,7 @@ def connect_to_network():
         #os.system("nmcli dev wifi connect {network_name} password {password}".format(network_name=network_name, password=password))
         if network_name != "" and password != "":
             #server.shutdown()
+            os.system("nmcli dev wifi connect {network_name} password {password}".format(network_name=network_name, password=password))
             return redirect(url_for('initialization_form'))                                 
     return render_template("Form1.html")
  

@@ -9,7 +9,7 @@ import os
 
 class RIICOMain():
     def __init__(self, post_cycle_time = 1800):
-        self.hardware_backend_server = "http://192.168.26.106:7000"
+        self.hardware_backend_server = "http://192.168.29.106:7000"
         self.initial_uploader = IniMU(self.hardware_backend_server)
         self.constant_messages_uploader = ContMU(self.hardware_backend_server)
         self.post_cycle_time = post_cycle_time
@@ -59,7 +59,7 @@ class RIICOMain():
         self.update_store_info(verbose = verbose)
         
         epoch = 1
-        
+        no_fridge_counter = 0
         message_wait = random.randint(0,self.post_cycle_time)
         
         while True:
@@ -73,8 +73,15 @@ class RIICOMain():
             if testing_with_fridge:
                 img = self.constant_messages_uploader.capture_image()
             else:
-                img_name = self.test_images_for_normal_fridge_flow[epoch%len(self.test_images_for_normal_fridge_flow)]                
+                img_name = self.test_images_for_normal_fridge_flow[no_fridge_counter]                
                 img = self.constant_messages_uploader.read_image(img_name)
+            
+            if verbose:
+                img_copy = cv.resize(img, (720,576))
+                cv.imshow("Captura", img_copy)
+                cv.waitKey(0)
+                cv.destroyAllWindows()
+            
             self.constant_messages_uploader.build_message(verbose = verbose)
             self.constant_messages_uploader.upload_message(verbose = verbose)
             
@@ -82,12 +89,8 @@ class RIICOMain():
             if epoch == update_cycles:
                 self.update_software(verbose = verbose)
                 epoch = 0
-
-            if verbose:
-                img_copy = cv.resize(img, (720,576))
-                cv.imshow("Captura", img_copy)
-                cv.waitKey(0)
-                cv.destroyAllWindows()
+                
+            no_fridge_counter = (no_fridge_counter+1)%len(self.test_images_for_normal_fridge_flow)
             
     def run_demo(self):
         self.run(verbose = True, testing_with_fridge=False, update_cycles = 5)

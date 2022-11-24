@@ -7,6 +7,7 @@ from threading import Event
 import requests
 
 from ProductCounter import FridgeContentCounter
+from OVProductCounter import OVFridgeContentCounter
 from Encrypter import Encrypter
 
 class MessageUploader ():
@@ -22,8 +23,7 @@ class MessageUploader ():
         self.running_on_intel_nuc = False
 
     def activate_inference_with_open_vino(self):
-        #self.fridge = OpenVinoFridgeContentCounter()
-        pass    
+        self.fridge = OVFridgeContentCounter()        
     
     def set_store_id(self, store_id):
         self.store_id = store_id

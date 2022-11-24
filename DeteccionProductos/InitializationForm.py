@@ -80,7 +80,7 @@ def initialization_form():
 
 @app.route('/success_page', methods =["GET"])
 def success_page():    
-    return "success :)"
+    return render_template("Success.html")
 
 @app.route('/connecting', methods =["GET"])
 def connecting():        

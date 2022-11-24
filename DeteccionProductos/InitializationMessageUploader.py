@@ -1,10 +1,10 @@
-import copy
 import requests
 import json
 from datetime import datetime
 import time
 from Encrypter import Encrypter
 import InitializationForm 
+import time
 
 class InitializationMessageUploader():
     def __init__(self, server = "http://192.168.195.106:7000"):        
@@ -101,6 +101,7 @@ class InitializationMessageUploader():
                     InitializationForm.form_data["fridge_cols"],
                     InitializationForm.form_data["fridge_rows"]
                 )
+                time.sleep(2)
                 server.shutdown()
                 return False
             else:
@@ -123,6 +124,7 @@ class InitializationMessageUploader():
                 InitializationForm.form_data["fridge_cols"],
                 InitializationForm.form_data["fridge_rows"]
                 )
+            time.sleep(2)
             server.shutdown()            
             return False
         

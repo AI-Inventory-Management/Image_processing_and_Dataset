@@ -10,7 +10,7 @@ from FridgeContentDetector import *
 
 class FridgeContentCounter():    
     def __init__(self, demo_images_dir = "../test1_images"):
-        #self.ser = serial.Serial("/dev/ttyACM0", 9600)
+        self.ser = serial.Serial("/dev/ttyACM0", 9600)
         self.ser = None
         self.demo_images_dir = demo_images_dir
         self.classifier_input_image_shape = (150,420)
@@ -93,11 +93,9 @@ class FridgeContentCounter():
         
         quantity = []
         for value in values:
-            if int(value) >= 23:
-                quantity.append(0)
-            elif int(value) >= 17.5:
+            if int(value) > 20:
                 quantity.append(1)
-            elif int(value) >= 10:
+            elif int(value) > 12:
                 quantity.append(2)
             else:
                 quantity.append(3)
@@ -203,7 +201,7 @@ class FridgeContentCounter():
         return contents
     
     def get_content_count(self, raw_image, verbose = False):
-        #ultrasonic_count = self.get_ultrasonic_count()
+        ultrasonic_count = self.get_ultrasonic_count()
         contents = self.get_classification(raw_image, self.classifier_input_image_shape, verbose)
         
         content_count = {}
@@ -215,16 +213,15 @@ class FridgeContentCounter():
         for num in self.ean:            
             ean_count[num] = 0
         
+        i = 0
         for label in contents:
-            #TODO: REMOVE self.eans self.labels order dependency
             if label in content_count:
-                #content_count[contents[i]] += int(ultrasonic_count[i])
-                content_count[label] += 1
-                ean_count[self.ean[self.labels.index(label)]] += 1
+                content_count[contents[label]] += int(ultrasonic_count[i])
+                ean_count[self.ean[self.labels.index(label)]] += int(ultrasonic_count[i])
             else:
-                #content_count[contents[i]] = int(ultrasonic_count[i])
-                content_count[label] = 1
-                ean_count[self.ean[self.labels.index(label)]] = 1
+                content_count[contents[label]] = int(ultrasonic_count[i])
+                ean_count[self.ean[self.labels.index(label)]] = int(ultrasonic_count[i])
+            i += 1
         
         content_count.pop("vacio")
         ean_count.pop("0")        

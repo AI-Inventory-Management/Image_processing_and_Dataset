@@ -11,7 +11,6 @@ from FridgeContentDetector import *
 class FridgeContentCounter():    
     def __init__(self, demo_images_dir = "../test1_images"):
         self.ser = serial.Serial("/dev/ttyACM0", 9600)
-        self.ser = None
         self.demo_images_dir = demo_images_dir
         self.classifier_input_image_shape = (150,420)
         self.labels = []
@@ -216,10 +215,10 @@ class FridgeContentCounter():
         i = 0
         for label in contents:
             if label in content_count:
-                content_count[contents[label]] += int(ultrasonic_count[i])
+                content_count[label] += int(ultrasonic_count[i])
                 ean_count[self.ean[self.labels.index(label)]] += int(ultrasonic_count[i])
             else:
-                content_count[contents[label]] = int(ultrasonic_count[i])
+                content_count[label] = int(ultrasonic_count[i])
                 ean_count[self.ean[self.labels.index(label)]] = int(ultrasonic_count[i])
             i += 1
         

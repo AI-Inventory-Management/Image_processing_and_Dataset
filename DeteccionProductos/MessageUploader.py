@@ -28,7 +28,7 @@ class MessageUploader ():
         return self.image
     
     def capture_image(self):
-        self.camera = cv.VideoCapture(1)
+        self.camera = cv.VideoCapture(0)
         #self.camera = cv.VideoCapture(0)     # Uncomment this for testing on a personal computer
         res, self.image = self.camera.read()
         self.camera.release()

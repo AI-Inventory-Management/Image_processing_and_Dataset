@@ -50,6 +50,10 @@ def connect_to_network():
             internet_check_thread.start()
             return redirect(url_for('connecting'))                                 
     return render_template("Form1.html")
+
+@app.route('/connecting', methods = ["GET"])    
+def connecting():
+	return "connecting ..."
  
 @app.route('/initialization_form', methods =["GET", "POST"])
 def initialization_form():

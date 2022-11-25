@@ -5,6 +5,7 @@ from InitializationMessageUploader import InitializationMessageUploader as IniMU
 from MessageUploader import MessageUploader as ContMU
 
 import cv2 as cv
+import sys, getopt
 import json
 from threading import Event
 import random
@@ -111,4 +112,21 @@ class RIICOMain():
         
 if __name__ == '__main__':
     main = RIICOMain(post_cycle_time = 3)
-    main.run_demo()            
+    # ============== we read command line args ==============
+    command_input_arguments = sys.argv[1:] # exclude file name as input argument
+    testing_with_fridge = False
+    running_on_nuc = False
+    verbose = True
+    try:
+        opts, args = getopt.getopt(command_input_arguments, "", ["testing_with_fridge=", "running_on_nuc=", "verbose="])
+        for opt, arg in opts:        
+            if opt == "--testing_with_fridge":
+                testing_with_fridge = arg == "true" or arg == "True"
+            elif opt == "--running_on_nuc":
+                running_on_nuc = arg == "true" or arg == "True"
+            elif opt == "--verbose":
+                verbose = arg == "true" or arg == "True"            
+    except getopt.GetoptError:
+        pass
+    # ============== we run main ==============
+    main.run(verbose = verbose, testing_with_fridge=testing_with_fridge, update_cycles = 5, running_on_nuc = running_on_nuc)            

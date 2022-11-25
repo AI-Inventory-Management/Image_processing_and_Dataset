@@ -15,10 +15,10 @@ class OVFridgeContentDetector():
     def __init__(self) -> None:
         self.demo_images_dir = "./test4_images/"
         self.segmentation_model = None
-        with open("./data/model_data.json", 'r') as f:
+        with open( os.path.join(os.path.dirname(__file__),"./data/model_data.json"), 'r') as f:
             data = json.load(f)
             f.close
-            self.segmentation_model_path = data["ov_segmentation_model_path"]        
+            self.segmentation_model_path = os.path.join(os.path.dirname(__file__),data["ov_segmentation_model_path"])        
         from openvino.runtime import Core
         self.ie = Core()     
         model_temp = self.ie.read_model(model = self.segmentation_model_path)

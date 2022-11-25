@@ -17,7 +17,7 @@ class OVFridgeContentCounter():
         from openvino.runtime import Core
         self.ie = Core()        
         
-        with open("./data/product_data.json", 'r') as f:
+        with open( os.path.join(os.path.dirname(__file__), "./data/product_data.json"), 'r') as f:
             data = json.load(f)
             f.close()
             self.labels = data["labels"]
@@ -28,7 +28,7 @@ class OVFridgeContentCounter():
         self.prev_pred = np.zeros((8, len(self.labels) - 1))
         self.prev_pred[:, 6] = 1
         
-        with open("./data/product_data.json", 'w') as f:
+        with open( os.path.join(os.path.dirname(__file__), "./data/product_data.json"), 'w') as f:
             data["prev_pred"] = self.prev_pred.tolist()
             json.dump(data, f)
                 
@@ -37,12 +37,12 @@ class OVFridgeContentCounter():
         self.model_path3 = ""        
         self.thresh = 0.5
         
-        with open("./data/model_data.json", 'r') as f:
+        with open( os.path.join(os.path.dirname(__file__),"./data/model_data.json"), 'r') as f:
             data = json.load(f)
             f.close
-            self.model_path = data["ov_model_path"]
-            self.model_path2 = data["ov_model_path2"]
-            self.model_path3 = data["ov_model_path3"]            
+            self.model_path = os.path.join(os.path.dirname(__file__),data["ov_model_path"])
+            self.model_path2 = os.path.join(os.path.dirname(__file__), data["ov_model_path2"])
+            self.model_path3 = os.path.join(os.path.dirname(__file__), data["ov_model_path3"])            
             self.thresh = data["thresh"]
         
         model_temp = self.ie.read_model(model = self.model_path)
@@ -59,7 +59,7 @@ class OVFridgeContentCounter():
         self.fridge_rows = 2
         
         try:
-            with open("./data/fridge_data.json", 'r') as f:
+            with open(os.path.join(os.path.dirname(__file__),"./data/fridge_data.json"), 'r') as f:
                data = json.load(f)
                f.close()
                self.fridge_rows, self.fridge_cols = tuple(map(int,data["fridge_dimensions"]))
@@ -160,11 +160,11 @@ class OVFridgeContentCounter():
                 contents.append(label)
                 cell_num += 1
 
-            with open("./data/product_data.json", 'r') as f:
+            with open( os.path.join(os.path.dirname(__file__), "./data/product_data.json"), 'r') as f:
                 data = json.load(f)
                 f.close()
                 
-            with open("./data/product_data.json", 'w') as f:
+            with open(os.path.join(os.path.dirname(__file__),"./data/product_data.json"), 'w') as f:
                 data["prev_pred"] = self.prev_pred.tolist()
                 json.dump(data, f)
                 
@@ -218,17 +218,17 @@ class OVFridgeContentCounter():
         return ean_count
     
     def update_software(self, verbose = False):
-        with open("./data/product_data.json", 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), "./data/product_data.json"), 'r') as f:
             data = json.load(f)
             f.close()
             self.labels = data["labels"]
             self.ean = data["eans"]
         
-        with open("./data/product_data.json", 'r') as f:
+        with open( os.path.join(os.path.dirname(__file__),"./data/product_data.json"), 'r') as f:
             data = json.load(f)
             f.close()
         
-        with open("./data/product_data.json", 'w') as f:
+        with open( os.path.join(os.path.dirname(__file__), "./data/product_data.json"), 'w') as f:
             data["prev_pred"] = self.prev_pred.tolist()
             json.dump(data, f)
             
@@ -261,5 +261,5 @@ class OVFridgeContentCounter():
         cv.destroyAllWindows()
                 
 if __name__ == "__main__":
-    product_counter = FridgeContentCounter()
+    product_counter = OVFridgeContentCounter()
     product_counter.run_demo(verbose = True)

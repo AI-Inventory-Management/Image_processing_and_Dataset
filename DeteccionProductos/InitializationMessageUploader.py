@@ -6,6 +6,7 @@ from Encrypter import Encrypter
 import InitializationForm 
 import time
 import copy
+import os
 
 class InitializationMessageUploader():
     def __init__(self, server = "http://192.168.195.106:7000"):        
@@ -20,7 +21,7 @@ class InitializationMessageUploader():
         self.encrypter = Encrypter()
         self.running_on_intel_nuc = False
         
-        with open("./data/product_data.json", 'r') as f:
+        with open( os.path.join( os.path.dirname(__file__), "./data/product_data.json") , 'r') as f:
             data = json.load(f)
             f.close()
             self.ean = data["eans"]
@@ -81,7 +82,7 @@ class InitializationMessageUploader():
         ean2label_for_form.pop("0")
         ean2label_for_form.pop("-1")
         try:
-            with open("./data/store_data.json", 'r') as f:
+            with open( os.path.join( os.path.dirname(__file__), "./data/store_data.json") , 'r') as f:
                 data = json.load(f)
                 f.close()
             if len(data) == 0:
@@ -138,7 +139,7 @@ class InitializationMessageUploader():
             bool value that represents if the store already had data
         """
         try:
-            with open("./data/store_data.json", 'r') as f:
+            with open( os.path.join( os.path.dirname(__file__), "./data/store_data.json") , 'r') as f:
                 data = json.load(f)
                 f.close()
                 if len(data) == 0:
@@ -207,14 +208,14 @@ class InitializationMessageUploader():
         
     def build_data_file(self, verbose = False):
         data = {"store_id" : self.store_id, "store_info" : self.unencrypted_message}
-        with open("./data/store_data.json", 'w') as f:
+        with open( os.path.join(os.path.dirname(__file__),"./data/store_data.json"), 'w') as f:
             json.dump(data, f)
             f.close()
             if verbose:
                 print("Store information saved succesfully.")
             
         fridge_data = {"fridge_dimensions" : (self.fridge_info["fridge_cols"], self.fridge_info["fridge_rows"])}
-        with open("./data/fridge_data.json", 'w') as ff:
+        with open( os.path.join(os.path.dirname(__file__), "./data/fridge_data.json"), 'w') as ff:
             json.dump(fridge_data, ff)
             ff.close()
             if verbose:
@@ -236,7 +237,7 @@ class InitializationMessageUploader():
             print("unnable to connect with server please check wifi connection")
             
     def update_software(self, verbose = False):
-        with open("./data/product_data.json", 'r') as f:
+        with open( os.path.join( os.path.dirname(__file__), "./data/product_data.json"), 'r') as f:
             data = json.load(f)
             f.close()
             self.ean = data["eans"]

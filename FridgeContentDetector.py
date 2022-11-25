@@ -23,10 +23,10 @@ class FridgeContentDetector():
         self.sodas_final_dataset_dir = "./sodas_dataset_w_margin/"
         self.segmentation_model_path = None
         
-        with open("./data/model_data.json", 'r') as f:
+        with open( os.path.join(os.path.dirname(__file__),"./data/model_data.json"), 'r') as f:
             data = json.load(f)
             f.close
-            self.segmentation_model_path = data["segmentation_model_path"]            
+            self.segmentation_model_path = os.path.join(os.path.dirname(__file__), data["segmentation_model_path"])            
 
         self.segmentation_model = models.load_model(self.segmentation_model_path)
 

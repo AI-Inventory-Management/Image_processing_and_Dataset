@@ -14,12 +14,12 @@ class FridgeNotFoundException(Exception):
 
 class FridgeContentDetector():
     def __init__(self) -> None:
-        self.demo_images_dir = "./test4_images/"
+        self.demo_images_dir = os.path.join(os.path.dirname(__file__), "./test4_images/")
         self.segmentation_model = None
-        with open("./data/model_data.json", 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__),"./data/model_data.json"), 'r') as f:
             data = json.load(f)
             f.close
-            self.segmentation_model_path = data["segmentation_model_path"]
+            self.segmentation_model_path = os.path.join(os.path.dirname(__file__), data["segmentation_model_path"])
         self.model = models.load_model(self.segmentation_model_path)
     
     def filter_coutours_by_area(self, contours, hierarchy, area):

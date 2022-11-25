@@ -1,5 +1,5 @@
 import time
-time.sleep(60)
+time.sleep(2)
 
 from InitializationMessageUploader import InitializationMessageUploader as IniMU
 from MessageUploader import MessageUploader as ContMU
@@ -18,7 +18,7 @@ class RIICOMain():
         self.constant_messages_uploader = ContMU(self.hardware_backend_server)
         self.running_on_nuc = False
         self.post_cycle_time = post_cycle_time
-        testing_without_fridge_dir = os.path.join("..", "test_for_normal_fridge_flow")        
+        testing_without_fridge_dir = os.path.join(os.path.dirname(__file__), "..", "test_for_normal_fridge_flow")        
         names_of_test_images_for_normal_fridge_flow = [i for i in os.listdir(testing_without_fridge_dir) if i.endswith(".jpg")]
         self.test_images_for_normal_fridge_flow = list( map(os.path.join , [testing_without_fridge_dir]*len(names_of_test_images_for_normal_fridge_flow) , names_of_test_images_for_normal_fridge_flow) )        
         self.test_images_for_normal_fridge_flow.sort()
@@ -45,7 +45,7 @@ class RIICOMain():
             once that happens, the store_id is passed to constant_uploader as well as the rest of the modules
             to make them work succesfully 
         """
-        with open("./data/store_data.json") as f:
+        with open( os.path.join(os.path.dirname(__file__), "./data/store_data.json") ) as f:
             data = json.load(f)
             f.close()
             store_id = data["store_id"]            
@@ -67,8 +67,6 @@ class RIICOMain():
         """
         if running_on_nuc:
             self.activate_intel_nuc_features()
-            import os
-            os.system("cd /home/riico/Image_processing_and_Dataset/DeteccionProductos")
         self.send_initial(verbose = verbose)
         self.update_store_info(verbose = verbose)
         
@@ -110,7 +108,7 @@ class RIICOMain():
             no_fridge_counter = (no_fridge_counter+1)%len(self.test_images_for_normal_fridge_flow)
             
     def run_demo(self):
-        self.run(verbose = False, testing_with_fridge=True, update_cycles = 5, running_on_nuc = True)
+        self.run(verbose = True, testing_with_fridge=False, update_cycles = 5, running_on_nuc = False)
         
 if __name__ == '__main__':
     main = RIICOMain(post_cycle_time = 3)

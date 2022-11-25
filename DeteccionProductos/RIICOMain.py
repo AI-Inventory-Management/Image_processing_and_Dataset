@@ -29,15 +29,14 @@ class RIICOMain():
         self.constant_messages_uploader.activate_inference_with_open_vino()                
         
     def send_initial(self, verbose = False):
-        had_data = self.initial_uploader.obtain_initial_store_data_gui()
-        if not had_data:
+        has_data = self.initial_uploader.obtain_initial_store_data_gui()
+        while not has_data:
             self.initial_uploader.upload_message(verbose = verbose)
             self.initial_uploader.build_data_file(verbose = verbose)
-            if verbose:
-                print("First message sent.")
-        else:
-            if verbose:
-                print("First message already sent.")
+            has_data = self.initial_uploader.obtain_initial_store_data_gui()
+        if verbose:
+            print("First message sent.")
+        
         
     def update_store_info(self, verbose = False):
         """
@@ -108,7 +107,7 @@ class RIICOMain():
             no_fridge_counter = (no_fridge_counter+1)%len(self.test_images_for_normal_fridge_flow)
             
     def run_demo(self):
-        self.run(verbose = False, testing_with_fridge=False, update_cycles = 5, running_on_nuc = True)
+        self.run(verbose = True, testing_with_fridge=False, update_cycles = 5, running_on_nuc = False)
         
 if __name__ == '__main__':
     main = RIICOMain(post_cycle_time = 3)

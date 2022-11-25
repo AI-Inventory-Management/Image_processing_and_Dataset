@@ -78,7 +78,7 @@ class InitializationMessageUploader():
 
     def obtain_initial_store_data_gui(self) ->bool:
         data = None
-        ean2label_for_form = self.ean2label
+        ean2label_for_form = copy.deepcopy(self.ean2label)
         ean2label_for_form.pop("0")
         ean2label_for_form.pop("-1")
         try:
@@ -107,6 +107,28 @@ class InitializationMessageUploader():
                 server.shutdown()
                 return False
             else:
+                if data["store_id"] == "":                    
+                    fridge_rows = 2
+                    fridge_cols = 4
+                    with open( os.path.join( os.path.dirname(__file__), "./data/fridge_data.json") , 'r') as f:
+                        fridge_data = json.load(f)
+                        f.close()
+                        fridge_rows, fridge_cols = tuple(map(int,fridge_data["fridge_dimensions"]))
+
+                    store_info = dict(data["store_info"])
+                    self.build_message(store_info["store_name"], 
+                        store_info["store_latitude"],
+                        store_info["store_longitude"],
+                        store_info["store_state"],
+                        store_info["store_municipality"],
+                        store_info["store_zip_code"],
+                        store_info["store_address"],
+                        store_info["store_curr_stock"],
+                        store_info["store_min_stocks"],
+                        store_info["store_max_stocks"],
+                        fridge_cols,
+                        fridge_rows)
+                    return False
                 return True
         except FileNotFoundError:
             server = InitializationForm.load_form(ean2label_for_form, self.running_on_intel_nuc)

@@ -22,7 +22,7 @@ class RIICOMain():
     def activate_intel_nuc_features(self):
         self.initial_uploader.running_on_intel_nuc = True
         self.constant_messages_uploader.running_on_intel_nuc = True
-        self.activate_inference_with_open_vino()                
+        self.constant_messages_uploader.activate_inference_with_open_vino()                
         
     def send_initial(self, verbose = False):
         had_data = self.initial_uploader.obtain_initial_store_data_gui()
@@ -101,7 +101,7 @@ class RIICOMain():
             no_fridge_counter = (no_fridge_counter+1)%len(self.test_images_for_normal_fridge_flow)
             
     def run_demo(self):
-        self.run(verbose = True, testing_with_fridge=False, update_cycles = 5)
+        self.run(verbose = True, testing_with_fridge=False, update_cycles = 5, running_on_nuc = True)
         
 if __name__ == '__main__':
     main = RIICOMain(post_cycle_time = 3)

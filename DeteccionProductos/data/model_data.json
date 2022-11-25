@@ -1,5 +1,9 @@
 {"segmentation_model_path":"./models/segmentation_model5",
 "model_path": "./models/sodas_detector_prueb9",
 "model_path2": "./models/sodas_detector_prot", 
-"model_path3": "./models/sodas_detector_ruido_lig", 
+"model_path3": "./models/sodas_detector_ruido_lig",
+"ov_segmentation_model_path":"./models/segmentation_model5_ov/saved_model.xml",
+"ov_model_path": "./models/sodas_detector_prueb9_ov/saved_model.xml",
+"ov_model_path2": "./models/sodas_detector_prot_ov/saved_model.xml", 
+"ov_model_path3": "./models/sodas_detector_ruido_lig_ov/saved_model.xml", 
 "alfa": 0.4, "beta": 0.6, "thresh": 0.45}

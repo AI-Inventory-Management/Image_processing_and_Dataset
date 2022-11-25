@@ -5,6 +5,7 @@ import time
 from Encrypter import Encrypter
 import InitializationForm 
 import time
+import copy
 
 class InitializationMessageUploader():
     def __init__(self, server = "http://192.168.195.106:7000"):        

@@ -4,7 +4,7 @@ import os
 import json
 import serial
 
-from FridgeContentDetector import *
+from OVFridgeContentDetector import *
 
 class OVFridgeContentCounter():    
     def __init__(self, demo_images_dir = "../test1_images"):        
@@ -13,7 +13,7 @@ class OVFridgeContentCounter():
         self.classifier_input_image_shape = (150,420)
         self.labels = []
         self.ean = []
-        self.content_detector = FridgeContentDetector()
+        self.content_detector = OVFridgeContentDetector()
         from openvino.runtime import Core
         self.ie = Core()        
         

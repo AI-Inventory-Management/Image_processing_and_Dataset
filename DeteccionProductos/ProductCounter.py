@@ -61,7 +61,6 @@ class FridgeContentCounter():
         except:
             pass
     
-    
     def show_count_result(self, label, max_pred, cell_num, cell):
         pred_lbl = label 
         pred_pred =  str(max_pred*100) + "% "
@@ -104,8 +103,7 @@ class FridgeContentCounter():
                 quantity.append(3)
             
         return quantity
-        
-    
+         
     def get_classification(self, raw_image, classifier_input_image_shape, verbose = False):
         contents = []        
         cell_num = 0

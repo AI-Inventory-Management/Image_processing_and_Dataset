@@ -108,7 +108,7 @@ class RIICOMain():
             no_fridge_counter = (no_fridge_counter+1)%len(self.test_images_for_normal_fridge_flow)
             
     def run_demo(self):
-        self.run(verbose = True, testing_with_fridge=False, update_cycles = 5, running_on_nuc = False)
+        self.run(verbose = False, testing_with_fridge=False, update_cycles = 5, running_on_nuc = True)
         
 if __name__ == '__main__':
     main = RIICOMain(post_cycle_time = 3)

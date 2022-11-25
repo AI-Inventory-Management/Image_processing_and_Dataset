@@ -114,7 +114,8 @@ class OVFridgeContentCounter():
         cell_num = 0
         try:
             content_cells = self.content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, classifier_input_image_shape)            
-            print("Fridge found")
+            if verbose:
+                print("Fridge found")
             
             for cell in content_cells:                
                 cell = cell/255.0
@@ -126,7 +127,8 @@ class OVFridgeContentCounter():
                 votaciones[int(np.argmax(pred))] = votaciones[int(np.argmax(pred))]+1
                 votaciones[int(np.argmax(pred2))] = votaciones[int(np.argmax(pred2))]+1
                 votaciones[int(np.argmax(pred3))] = votaciones[int(np.argmax(pred3))]+1
-                print(votaciones)
+                if verbose:
+                    print(votaciones)
                 max_value = max(votaciones)
                 max_pred = np.amax(pred)
                 max_pred2 = np.amax(pred2)
@@ -149,7 +151,8 @@ class OVFridgeContentCounter():
                     label = self.labels[-1]
                 else:
                     label = self.labels[int(label_index)]
-                    print(label)
+                    if verbose:
+                        print(label)
 
                 if verbose:                    
                     self.show_count_result(label, max_pred, cell_num, cell)
@@ -229,14 +232,6 @@ class OVFridgeContentCounter():
             data["prev_pred"] = self.prev_pred.tolist()
             json.dump(data, f)
             
-        with open("./data/model_data.json", 'r') as f:
-            data = json.load(f)
-            f.close
-            self.model_path = data["model_path"]
-            self.thresh = data["thresh"]
-        
-        backend.clear_session()
-        self.model = models.load_model(self.model_path)
         
         if verbose:
             print()
@@ -244,9 +239,7 @@ class OVFridgeContentCounter():
             print("lablels:")
             print(self.labels)
             print("eans:")
-            print(self.ean)
-            print("Model")
-            print(self.model_path)            
+            print(self.ean)           
             print("thresh")
             print(self.thresh)
             print("Fridge software updated")

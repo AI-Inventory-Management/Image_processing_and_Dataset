@@ -18,7 +18,7 @@ class OVFridgeContentDetector():
         with open("./data/model_data.json", 'r') as f:
             data = json.load(f)
             f.close
-            self.segmentation_model_path = data["segmentation_model_path"]        
+            self.segmentation_model_path = data["ov_segmentation_model_path"]        
         from openvino.runtime import Core
         self.ie = Core()     
         model_temp = self.ie.read_model(model = self.segmentation_model_path)
@@ -78,7 +78,7 @@ class OVFridgeContentDetector():
         # Uncomment this section to test the binarization trough segmentation model             
         expanded_image = cv.resize(image, (640, 360), interpolation = cv.INTER_AREA)        
         expanded_image = np.expand_dims(expanded_image, axis = 0)
-        pred = self.model([expanded_image])[self.model_output_layer]
+        pred = self.model([expanded_image])[self.model_output_layer][0]
         mask = np.argmax(pred, axis=-1)
         mask *= 255        
         mask = np.uint8(mask)

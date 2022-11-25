@@ -1,3 +1,6 @@
+import time
+time.sleep(60)
+
 from InitializationMessageUploader import InitializationMessageUploader as IniMU
 from MessageUploader import MessageUploader as ContMU
 
@@ -7,9 +10,10 @@ from threading import Event
 import random
 import os
 
+
 class RIICOMain():
     def __init__(self, post_cycle_time = 1800):
-        self.hardware_backend_server = "http://192.168.29.106:7000"
+        self.hardware_backend_server = "http://192.168.28.106:7000"
         self.initial_uploader = IniMU(self.hardware_backend_server)
         self.constant_messages_uploader = ContMU(self.hardware_backend_server)
         self.running_on_nuc = False
@@ -63,6 +67,8 @@ class RIICOMain():
         """
         if running_on_nuc:
             self.activate_intel_nuc_features()
+            import os
+            os.system("cd /home/riico/Image_processing_and_Dataset/DeteccionProductos")
         self.send_initial(verbose = verbose)
         self.update_store_info(verbose = verbose)
         
@@ -76,7 +82,10 @@ class RIICOMain():
                 print("Image capture wait: " + str((message_wait)/60) + " min")
                 print("Current epoch: " + str(epoch))
                 print("Cycles till update: " +str(update_cycles - epoch))
-                
+            
+            if epoch % 4 == 0:
+                print("Running correctly")
+            
             Event().wait(message_wait)
             if testing_with_fridge:
                 img = self.constant_messages_uploader.capture_image()
@@ -101,7 +110,7 @@ class RIICOMain():
             no_fridge_counter = (no_fridge_counter+1)%len(self.test_images_for_normal_fridge_flow)
             
     def run_demo(self):
-        self.run(verbose = True, testing_with_fridge=False, update_cycles = 5, running_on_nuc = True)
+        self.run(verbose = False, testing_with_fridge=True, update_cycles = 5, running_on_nuc = True)
         
 if __name__ == '__main__':
     main = RIICOMain(post_cycle_time = 3)

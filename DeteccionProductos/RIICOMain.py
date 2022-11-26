@@ -10,11 +10,12 @@ import json
 from threading import Event
 import random
 import os
+from hardware_backend_data import SERVER_IP_ADDRESS
 
 
 class RIICOMain():
     def __init__(self, post_cycle_time = 1800):
-        self.hardware_backend_server = "http://192.168.28.106:7000"
+        self.hardware_backend_server = SERVER_IP_ADDRESS
         self.initial_uploader = IniMU(self.hardware_backend_server)
         self.constant_messages_uploader = ContMU(self.hardware_backend_server)
         self.running_on_nuc = False

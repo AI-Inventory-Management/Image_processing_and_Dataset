@@ -1,5 +1,6 @@
 DeteccionProductos/models/*
 DeteccionProductos/Encrypter.py
+DeteccionProductos/hardware_backend_data.py
 DeteccionProductos/data/store_data.json
 DeteccionProductos/data/fridge_data.json
 *.pyc

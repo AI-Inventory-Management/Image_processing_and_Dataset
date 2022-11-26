@@ -69,7 +69,8 @@ class InitializationMessageUploader():
             print("Message")
             print(self.message)
         
-        self.unencrypted_message = copy.deepcopy(self.message)
+        if len(self.unencrypted_message) == 0:
+            self.unencrypted_message = copy.deepcopy(self.message)
         self.message = self.encrypter.encrypt(self.message)
         
         if verbose:

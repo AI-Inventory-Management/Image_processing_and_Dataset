@@ -1,3 +1,14 @@
+"""
+Product counter using open vino.
+
+Classes:
+    OVFridgeContentCounter
+
+Author:
+    Jose Angel del Angel
+    
+"""
+#_________________________________Libraries____________________________________
 import numpy as np
 import cv2 as cv
 import os
@@ -6,8 +17,111 @@ import serial
 
 from OVFridgeContentDetector import *
 
-class OVFridgeContentCounter():    
-    def __init__(self, demo_images_dir = "../test1_images"):        
+#__________________________________Classes_____________________________________
+class OVFridgeContentCounter():
+    """
+    Fridge content counter with open vino.
+    
+    ...
+    
+    Attributes
+    ----------
+    ser : Serial
+        Serial connection.
+        
+    demo_images_dir : string
+        Path to demo images folder.
+        
+    classifier_input_image_shape : tuple
+        Dimensions of classifier input.
+    
+    labels : list
+        Labels of products.
+    
+    ean : list
+        Eans of products.
+    
+    content_detector : OVFridgeContentDetector
+        Content detector.
+        
+    ie : Core
+        Core.
+    
+    prev_pred : np Array
+        Previous predictions.
+    
+    model_path : string
+        Path to model 1.
+    
+    model_path2 : string
+        Path to model 2.
+    
+    model_path3 : string
+        Path to model 3
+    
+    thresh : int
+        Threshold for classification.
+    
+    model : Model
+        Model 1.
+    
+    model2 : Model
+        Model 2
+        
+    model3 : Model
+        Model 3
+    
+    model_output_layer : Model Output
+        Model 1 output layer.
+    
+    model_output_layer2 : Model Output
+        Model 2 output layer.
+        
+    model_output_layer3 : Model Output
+        Model 3 output layer.
+    
+    fridge_cols : int
+        Columns of fridge.
+        
+    fridge_rows : int
+        Rows of fridge.
+        
+    Methods
+    -------
+    show_count_result(label, max_pred, cell_num, cell):
+        Show prediction of cell in image.
+    
+    get_ultrasonic_count():
+        Read serial connection for ultrasonic values.
+    
+    get_classification(raw_image, classifier_input_image_shape, verbose = False):
+        Clasify contents of fridge in image.
+        
+    get_content_count(raw_image, verbose = False):
+        Make count of contents of fridge.
+    
+    update_software(verbose = False):
+        Update models and values of system.
+        
+    run_demo(verbose = True):
+        Demonstrate class functionality.
+    
+    """    
+    
+    def __init__(self, demo_images_dir = "../test1_images"):   
+        """
+        Contruct class attributes.
+
+        Parameters
+        ----------
+        demo_images_dir : string, optional
+            Path to test images folder. The default is "../test1_images".
+
+        Returns
+        -------
+        None.
+
+        """
         self.ser = None
         self.demo_images_dir = demo_images_dir
         self.classifier_input_image_shape = (150,420)
@@ -24,7 +138,7 @@ class OVFridgeContentCounter():
             self.ean = data["eans"]
         
         
-        # ================ we setup the previous prediction ===============
+        # Setup previous prediction
         self.prev_pred = np.zeros((8, len(self.labels) - 1))
         self.prev_pred[:, 6] = 1
         
@@ -67,6 +181,28 @@ class OVFridgeContentCounter():
             pass
     
     def show_count_result(self, label, max_pred, cell_num, cell):
+        """
+        Show results of predictions.
+
+        Parameters
+        ----------
+        label : string
+            Predicted label.
+            
+        max_pred : float
+            Level of ceirtanty in prediction.
+            
+        cell_num : int
+            Number of cell.
+            
+        cell : cv2 Image
+            Cell image.
+
+        Returns
+        -------
+        None.
+
+        """
         pred_lbl = label 
         pred_pred =  str(max_pred*100) + "% "
         cel_cnt = "Cell: " + str(cell_num)
@@ -85,7 +221,18 @@ class OVFridgeContentCounter():
         cv.destroyAllWindows()
     
     def get_ultrasonic_count(self):
+        """
+        Read serial connection for ultrasonic information.
+
+        Returns
+        -------
+        list
+            Products per cell.
+
+        """
         numSens = self.fridge_rows * self.fridge_cols
+        
+        # Read serial
         if self.ser is None:
             try:
                 self.ser = serial.Serial("/dev/ttyACM0", 9600)
@@ -98,6 +245,7 @@ class OVFridgeContentCounter():
             line = self.ser.readline()
             values = line.split()
             
+        # Define quantity
         quantity = []
         for value in values:
             if int(value) > 20:
@@ -110,8 +258,31 @@ class OVFridgeContentCounter():
         return quantity
          
     def get_classification(self, raw_image, classifier_input_image_shape, verbose = False):
+        """
+        Classify products in fridge.
+
+        Parameters
+        ----------
+        raw_image : cv2 Image
+            Image of fridge.
+            
+        classifier_input_image_shape : tuple
+            Shape of output of classifier.
+            
+        verbose : bool, optional
+            For further information. The default is False.
+
+        Returns
+        -------
+        contents : list
+            Clasification of each cell.
+
+        """
+        # Prepare
         contents = []        
         cell_num = 0
+        
+        # Classify
         try:
             content_cells = self.content_detector.get_fridge_cells(raw_image, self.fridge_rows, self.fridge_cols, classifier_input_image_shape)            
             if verbose:
@@ -186,9 +357,28 @@ class OVFridgeContentCounter():
         return contents
     
     def get_content_count(self, raw_image, verbose = False):
+        """
+        Add and return sum of count of fridge contents.
+
+        Parameters
+        ----------
+        raw_image : cv2 Image
+            Image of fridge.
+            
+        verbose : bool, optional
+            For further information. The default is False.
+
+        Returns
+        -------
+        ean_count : dict
+            Total sum for each registered product.
+
+        """
+        # Get counts
         ultrasonic_count = self.get_ultrasonic_count()
         contents = self.get_classification(raw_image, self.classifier_input_image_shape, verbose)
         
+        #Format
         content_count = {}
         for org_label in self.labels:            
             content_count[org_label] = 0
@@ -218,6 +408,19 @@ class OVFridgeContentCounter():
         return ean_count
     
     def update_software(self, verbose = False):
+        """
+        Update models and values of system.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            For further information. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
         with open(os.path.join(os.path.dirname(__file__), "./data/product_data.json"), 'r') as f:
             data = json.load(f)
             f.close()
@@ -248,6 +451,19 @@ class OVFridgeContentCounter():
             print(self.prev_pred)
     
     def run_demo(self, verbose = True):
+        """
+        Demonstrate functionality of class.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            For further information. The default is True.
+
+        Returns
+        -------
+        None.
+
+        """
         for image_name in os.listdir(self.demo_images_dir):
             if image_name.endswith(".jpg"):
                 image_dir = os.path.join(self.demo_images_dir, image_name)
@@ -259,7 +475,8 @@ class OVFridgeContentCounter():
                 print(content)
                 
         cv.destroyAllWindows()
-                
+
+#____________________________________Main______________________________________
 if __name__ == "__main__":
     product_counter = OVFridgeContentCounter()
     product_counter.run_demo(verbose = True)

@@ -1,14 +1,17 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Fri Oct 21 17:09:34 2022
+Build product files.
 
-@author: lex
+    Create and fill required documents with information of the products.
+    
+Author
+    Alejandro Dominguez
+    
 """
-
+#_________________________________Libraries____________________________________
 import json
 import numpy as np
 
+#_________________________________Constants____________________________________
 labels = ['fresca lata 355 ml', 
           'sidral mundet lata 355 ml', 
           'fresca botella de plastico 600 ml', 
@@ -39,17 +42,24 @@ ean = ["7501055365470",
 prev_pred = np.zeros((8, len(labels) - 1))
 prev_pred[:, 6] = 1
 
-f = open("./data/product_data.json", 'w')
-data = {"labels" : labels, "eans" : ean, "prev_pred" : prev_pred.tolist()}
-json.dump(data, f)
-f.close()
-
 model_path = './models/sodas_detector_prot'
 alfa = 0.4
 beta = 0.6 
 thresh = 0.65
 
+#____________________________________Main______________________________________
+# Create product data file
+f = open("./data/product_data.json", 'w')
+
+# Fill file
+data = {"labels" : labels, "eans" : ean, "prev_pred" : prev_pred.tolist()}
+json.dump(data, f)
+f.close()
+
+# Create model data file
 f = open("./data/model_data.json", 'w')
+
+# Fill file
 data = {"model_path" : model_path, "alfa" : alfa, "beta" : beta, "thresh" : thresh}
 json.dump(data, f)
 f.close()

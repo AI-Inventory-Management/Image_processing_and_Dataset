@@ -1,15 +1,113 @@
+"""
+Initialization Message Uploader.
+
+    Builds, saves, encrypts and sends initialization message.
+
+Classes:
+    InitializationMessageUploader
+
+Author:
+    Jose Angel del Angel
+    
+"""
+#_________________________________Libraries____________________________________
 import requests
 import json
-from datetime import datetime
 import time
 from Encrypter import Encrypter
 import InitializationForm 
-import time
 import copy
 import os
 
+#__________________________________Classes_____________________________________
 class InitializationMessageUploader():
-    def __init__(self, server = "http://192.168.195.106:7000"):        
+    """
+    Class to build and upload initialization message.
+    
+        Builds, saves, encrypts and sends initialization message.
+    
+    ...
+    
+    Attributes
+    ----------
+    message : dict
+        Message.
+        
+    unencrypted_message : dict
+        Message before encryption
+        
+    fridge_info : dict
+        Information of the fridge
+        
+    servers_handler_endpoint : string
+        Handler URL
+    
+    ean : list
+        Eans of the products.
+    
+    soda_labels : list
+        Labels of the products.
+        
+    ean2label : dict
+        Dictionary ean to label.
+    
+    label2ean : dict
+        Dictionary label to ean.
+    
+    encrypter : Encrypter
+        Encrypter.
+    
+    running_on_intel_nuc : bool
+        True if running on nuc.
+        
+    store_id : int
+        Id of store.
+        
+    Methods
+    -------
+    build_message():
+        Build message
+    
+    obtain_initial_store_data_gui():
+        Build and render initialization form.
+        
+    obtain_inital_store_data():
+        Recieve initial store data from terminal.
+        
+    build_data_file(verbose = False):
+        Create file and save obtained information.
+        
+    upload_message(verbose = False):
+        Upload message to handler.
+    
+    update_software(verbose = False):
+        Update information and modules of system.
+        
+    build_return_test_message(verbose = False):
+        Build test message.
+    
+    upload_test_mesage():
+        Upload test message to handler.
+        
+    run_comms_demo():
+        Demonstrate class functionality.
+
+    """
+    
+    def __init__(self, server = "http://192.168.195.106:7000"):
+        """
+        Construct class attributes.
+
+        Parameters
+        ----------
+        server : string, optional
+            URL to server. The default is "http://192.168.195.106:7000".
+
+        Returns
+        -------
+        None.
+
+        """        
         self.message = {}
         self.unencrypted_message = {}
         self.fridge_info = {}
@@ -21,6 +119,7 @@ class InitializationMessageUploader():
         self.encrypter = Encrypter()
         self.running_on_intel_nuc = False
         
+        # Load product information
         with open( os.path.join( os.path.dirname(__file__), "./data/product_data.json") , 'r') as f:
             data = json.load(f)
             f.close()
@@ -31,7 +130,7 @@ class InitializationMessageUploader():
             self.soda_labels.remove("producto no oficial")
             self.ean2label = data["ean2label"]
             self.label2ean = data["label2ean"]
-        # self.soda_labels = ['fresca lata 355 ml', 'sidral mundet lata 355 ml']
+            
         self.store_id = ""
     
     def build_message(self, 
@@ -48,7 +147,56 @@ class InitializationMessageUploader():
         fridge_cols:int,
         fridge_rows:int, 
         verbose = False):      
-          
+        """
+        Build message to be uploaded.
+
+        Parameters
+        ----------
+        store_name : str
+            Name of the store.
+            
+        store_latitude : float
+            Latitude of the store.
+            
+        store_longitude : float
+            Longitude of the store.
+            
+        store_state : str
+            State where the store is located.
+            
+        store_municipality : str
+            Municipality of the store.
+            
+        store_zip_code : int
+            Zip code of the store.
+            
+        store_address : str
+            Address of the store.
+            
+        store_curr_stock : dict
+            Current stock of every product.
+            
+        store_min_stocks : dict
+            Minimum stocj of every product.
+            
+        store_max_stocks : dict
+            Maximum stock of every product.
+            
+        fridge_cols : int
+            Number of columns of the fridge.
+            
+        fridge_rows : int
+            Number of rows in the fridge.
+            
+        verbose : bool, optional
+            For further information. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
+        # Build message
         self.message["store_name"] = store_name
         self.message["store_latitude"] = store_latitude
         self.message["store_longitude"] = store_longitude
@@ -69,6 +217,7 @@ class InitializationMessageUploader():
             print("Message")
             print(self.message)
         
+        # Encrypt message
         if len(self.unencrypted_message) == 0:
             self.unencrypted_message = copy.deepcopy(self.message)
         self.message = self.encrypter.encrypt(self.message)
@@ -78,10 +227,22 @@ class InitializationMessageUploader():
             print(self.message)
 
     def obtain_initial_store_data_gui(self) ->bool:
+        """
+        Obtain initial store information with user interface.
+
+        Returns
+        -------
+        bool
+            If failure false.
+
+        """
+        # Prepare
         data = None
         ean2label_for_form = copy.deepcopy(self.ean2label)
         ean2label_for_form.pop("0")
         ean2label_for_form.pop("-1")
+        
+        # Get data
         try:
             with open( os.path.join( os.path.dirname(__file__), "./data/store_data.json") , 'r') as f:
                 data = json.load(f)
@@ -155,12 +316,18 @@ class InitializationMessageUploader():
         
     def obtain_initial_store_data(self) -> bool:
         """
-        This function will prompt a technician for the initial data 
-        of the store were the system is located.
-        
-        Returns:
-            bool value that represents if the store already had data
+        Get initial store information through terminal.
+
+            This function will prompt a technician for the initial data 
+            of the store were the system is located.
+            
+        Returns
+        -------
+        bool
+            If failure false.
+
         """
+        # Get data
         try:
             with open( os.path.join( os.path.dirname(__file__), "./data/store_data.json") , 'r') as f:
                 data = json.load(f)
@@ -230,13 +397,28 @@ class InitializationMessageUploader():
             return False
         
     def build_data_file(self, verbose = False):
+        """
+        Generate and fill data file.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            For further information. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
+        # Save store information
         data = {"store_id" : self.store_id, "store_info" : self.unencrypted_message}
         with open( os.path.join(os.path.dirname(__file__),"./data/store_data.json"), 'w') as f:
             json.dump(data, f)
             f.close()
             if verbose:
                 print("Store information saved succesfully.")
-            
+        
+        # Save fridge information
         fridge_data = {"fridge_dimensions" : (self.fridge_info["fridge_cols"], self.fridge_info["fridge_rows"])}
         with open( os.path.join(os.path.dirname(__file__), "./data/fridge_data.json"), 'w') as ff:
             json.dump(fridge_data, ff)
@@ -245,6 +427,19 @@ class InitializationMessageUploader():
                 print("Fridge information saved succesfully")
     
     def upload_message(self, verbose = False):
+        """
+        Upload message to cloud handler.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            For further information. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
         try:
             res = requests.post(self.severs_handler_endpoint, json=self.message)
             if res.ok and verbose:
@@ -260,6 +455,20 @@ class InitializationMessageUploader():
             print("unnable to connect with server please check wifi connection")
             
     def update_software(self, verbose = False):
+        """
+        Update software.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            For further information. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
+        # Update product information
         with open( os.path.join( os.path.dirname(__file__), "./data/product_data.json"), 'r') as f:
             data = json.load(f)
             f.close()
@@ -274,6 +483,19 @@ class InitializationMessageUploader():
             print("Initializer software updated")
             
     def build_return_test_message(self, verbose = False):
+        """
+        Build test message.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            For further information. The default is False.
+
+        Returns
+        -------
+        None.
+
+        """
         self.build_message(store_name = "as", 
                            store_latitude = 1, 
                            store_longitude= 1, 
@@ -289,6 +511,15 @@ class InitializationMessageUploader():
                            verbose = verbose)
     
     def upload_test_mesage(self):
+        """
+        Upload test message to cloud handler.
+
+        Returns
+        -------
+        None.
+
+        """
+        # Build message
         store_name = input("please write the NAME of the new store: ")
         store_latitude = float(input("please write the LATITUDE of the new sotre: "))
         store_longitude = float(input("please write the LONGITUDE of the new sotre: "))
@@ -316,13 +547,24 @@ class InitializationMessageUploader():
         fridge_rows = int(input("please write the NUMBER of rows in the fridge: "))
         
         self.build_message(store_name, store_latitude, store_longitude, store_state, store_municipality, store_zip_code, store_address, current_stock, min_stocks, max_stocks, fridge_cols, fridge_rows)
+        
+        # Upload message
         self.upload_message(verbose=True)
         
     def run_comms_demo (self):
+        """
+        Demonstrate de functionality of the class.
+
+        Returns
+        -------
+        None.
+
+        """
         self.build_return_test_message(verbose = True)
         self.upload_message(verbose = True)
         self.build_data_file(verbose = True)
         
+#____________________________________Main______________________________________
 if __name__ == "__main__":
     uploader = InitializationMessageUploader()
     uploader.run_comms_demo()

@@ -1,10 +1,35 @@
-from flask import Flask, jsonify, request, render_template, redirect, url_for, Markup
+"""
+Initialization form.
+
+    Render form templates and process information.
+    
+Functions:
+    get_stock_tag_names()
+    
+    connect_to_network() -> Rendered Template
+    
+    initialization_form() -> Rendered Template
+    
+    success_page() -> Rendered Template
+    
+    connecting() -> Rendered Template
+    
+    check_internet_thread_status() -> URL
+    
+    load_form(dict, bool) -> Server Thread
+    
+Author:
+    Jose Angel del Angel
+"""
+#_________________________________Libraries____________________________________
+from flask import Flask, request, render_template, redirect, url_for
 import ServerThread
 import InternetCheckThread
 import webbrowser
 import time
 import os
 
+#_________________________________Variables____________________________________
 app = Flask(__name__)
 server = ServerThread.ServerThread(app)
 internet_check_thread = None
@@ -27,9 +52,25 @@ form_data = {
     "fridge_rows": None
 } 
 
+#_________________________________Functions____________________________________
 def get_stock_tag_names():
+    """
+    Create stock tag names.
+    
+    Parameters
+    ----------
+    None.
+
+    Returns
+    -------
+    None.
+
+    """
+    # Prepare
     global eans2labels
     global stock_tag_names
+    
+    # Obtain tags
     for ean in eans2labels:
         new_tag_names = {}
         new_tag_names["ean"] = ean
@@ -41,8 +82,24 @@ def get_stock_tag_names():
 
 @app.route('/', methods =["GET", "POST"])
 def connect_to_network():
+    """
+    Connect to network.
+
+    Parameters
+    ----------
+    None.
+    
+    Returns
+    -------
+    Rendered Template
+        Form 1 rendered.
+
+    """
+    # Prepare
     global internet_check_thread
     internet_check_thread = InternetCheckThread.InternetCheckThread()
+    
+    # Connect to network
     if request.method == "POST":       
         network_name = request.form.get("nname")       
         password = request.form.get("password")
@@ -55,10 +112,21 @@ def connect_to_network():
  
 @app.route('/initialization_form', methods =["GET", "POST"])
 def initialization_form():
+    """
+    Create initialization form.
+
+    Returns
+    -------
+    Rendered Template
+        Form 2 rendered.
+
+    """
+    # Prepare
     global form_data
     global form_complete
     global stock_tag_names
     
+    # Build form
     if request.method == "POST":       
         form_data["store_name"] = request.form.get("store_name")       
         form_data["store_latitude"] = request.form.get("latitude")
@@ -79,15 +147,42 @@ def initialization_form():
     return render_template("Form2.html", product_block = stock_tag_names)
 
 @app.route('/success_page', methods =["GET"])
-def success_page():    
+def success_page():
+    """
+    Render success html.
+
+    Returns
+    -------
+    Rendered Template
+        Success page rendered.
+
+    """
     return render_template("Success.html")
 
 @app.route('/connecting', methods =["GET"])
-def connecting():        
+def connecting():
+    """
+    Render connecting page.
+
+    Returns
+    -------
+    Rendered Template
+        Connecting page rendered.
+
+    """        
     return render_template("Connecting.html")
 
 @app.route('/check_internet_thread_status')
 def check_internet_thread_status():    
+    """
+    Check for internet connection.
+
+    Returns
+    -------
+    Redirect
+        Redirect for URL.
+
+    """
     if internet_check_thread.is_running:
         return redirect(url_for('connecting'))
     else:
@@ -97,6 +192,24 @@ def check_internet_thread_status():
             return redirect(url_for('connect_to_network'))
 
 def load_form(soda_eans2labels, running_on_nuc):
+    """
+    Load form.
+
+    Parameters
+    ----------
+    soda_eans2labels : dict
+        Dictionary from EANS to labels.
+        
+    running_on_nuc : bool
+        True if running on NUC.
+
+    Returns
+    -------
+    server : TYPE
+        DESCRIPTION.
+
+    """
+    # Prepare
     global app
     global server
     global eans2labels
@@ -105,19 +218,16 @@ def load_form(soda_eans2labels, running_on_nuc):
     running_on_intel_nuc = running_on_nuc
     server.start()
     time.sleep(1)
+    
+    # Connect
     webbrowser.open("http://127.0.0.1:7000/")          
     return server
 
-
-if __name__=='__main__':       
-    #initialization_form_server = multiprocessing.Process(target= app.run(host = '0.0.0.0', port = 7000, debug = True) )                 
-    #app.run(host = '0.0.0.0', port = 7000, debug = True)        
+#____________________________________Main______________________________________
+if __name__=='__main__':             
     server = ServerThread(app)
     server.start()
     webbrowser.open("http://127.0.0.1:7000/")  
     print("st after server start")
     time.sleep(3)
     server.shutdown()
-
-
-   

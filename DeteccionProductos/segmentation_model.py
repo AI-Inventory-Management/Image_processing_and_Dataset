@@ -1,5 +1,10 @@
+"""
+Test segmentation model.
+
+Author:
+    Jose Angel del Angel
+"""
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
 from openvino.runtime import Core
 

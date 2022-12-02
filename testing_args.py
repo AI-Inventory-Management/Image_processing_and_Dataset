@@ -1,7 +1,16 @@
+"""
+Establish arguments for Main.
+
+Author:
+    Jose Angel del Angel
+"""
+#_________________________________Libraries____________________________________
 import sys, getopt
 
+#_________________________________Variables____________________________________
 command_input_arguments = sys.argv[1:] # exclude file name as input argument
 
+#____________________________________Main______________________________________
 try:
     opts, args = getopt.getopt(command_input_arguments, "", ["testing_with_fridge=", "running_on_nuc=", "verbose="])
     for opt, arg in opts:        
@@ -12,6 +21,4 @@ try:
         elif opt == "--verbose":
             verbose = arg == "true"            
 except getopt.GetoptError:
-    # print 'test.py -i <inputfile> -o <outputfile>'
-    # sys.exit(2)
     print(" no args passed")

@@ -1,12 +1,17 @@
+"""
+Video test.
+
+Author:
+    Jose Angel del Angel
+    
+"""
 # import the opencv library
 import cv2
-  
-  
+    
 # define a video capture object
-vid = cv2.VideoCapture(1)
+vid = cv2.VideoCapture(0)
   
 while(True):
-      
     # Capture the video frame
     # by frame
     ret, frame = vid.read()

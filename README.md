@@ -1,6 +1,6 @@
 # Image Proccessing and Dataset
 ## Installation
-To install this proyect download filles form github. Then be sure to have the following files installed in python:
+To install this project download filles form github. Then be sure to have the following files installed in python:
 -- Open Vino
 -- Tensorflow
 -- Numpy
